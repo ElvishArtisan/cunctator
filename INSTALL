@@ -1,0 +1,14 @@
+This is the installation file for the Cunctator package.
+
+PREREQUISITES
+You will need the following installed and configured properly on your 
+system before building Call Commander:
+
+X11 Window System
+Needed for building on Un*x-type systems, including Linux.  Virtually 
+all Linux distros should include this.
+
+Qt Toolkit, v3.2 or better
+Most modern Linux distros include this.  It's typically installed as part
+of the KDE Desktop Environment, although KDE is by no means required.
+It can also be downloaded directly from TrollTech (ftp://ftp.trolltech.com/).

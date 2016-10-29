@@ -1,0 +1,228 @@
+; cunctator.conf
+;
+; This is the sample configuration file for Cunctator, a system for
+; controlling broadcast delay units.
+;
+; (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+;
+;      $Id: cunctator.conf-sample,v 1.11 2012/07/26 18:39:15 cvs Exp $
+;
+;   This program is free software; you can redistribute it and/or modify
+;   it under the terms of the GNU General Public License version 2 as
+;   published by the Free Software Foundation.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;   GNU General Public License for more details.
+;
+;   You should have received a copy of the GNU General Public
+;   License along with this program; if not, write to the Free Software
+;   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+;
+;
+; Use this as a basis for your own configurations.
+
+[Global]
+; TcpPort=<port-num>
+;
+; The TCP port number on which to listen for incoming control connections.
+; default is '3749'.
+;
+TcpPort=3749
+
+[Delay1]
+; Type=<type-str>
+;
+; The type of delay unit to control.  Currently supported values are:
+;   'Dummy' -- Internal dummy delay (for testing and debug purposes).
+;   'AirTools' -- The AirTools 6100 Broadcast Delay
+;   'BD600' -- The Eventide BD600 Broadcast Delay
+;   'JackDelay' -- Bult-in delay using the JACK audio connection kit.
+;
+Type=Dummy
+
+; TtyDevice=<dev-name>
+;
+; Devices that are controlled by means of serial ports have the port to
+; use specified here.  Currently, only the 'AirTools' and 'BD600' drivers
+; use this directive.  Default value is '/dev/ttyS0'.
+TtyDevice=/dev/ttyS0
+
+; TtySpeed=<speed>
+;
+; Specifies the baud rate of the serial interface specified by 'TtyDevice='.
+; Currently, only the 'AirTools' (default value 38400) and 'BD600' 
+; (default value 9600) drivers use this directive.
+;
+TtySpeed=9600
+
+; UnitAddress=<addr-num>
+;
+; Specify delay unit address (used only by the AirTools driver).
+;
+UnitAddress=1
+
+; AudioChannels=2
+;
+; Specify the number of audio channels to use for the delay. Valid values
+; are 1 - 2.  Used only by the JackDelay driver.
+;
+AudioChannels=2
+
+; DumpPercentage=50
+;
+; Specify how much audio (taken as a percentage of the current maximum delay)
+; to remove when the delay is dumped.  Valid values are 0 - 100.  Used only
+; by the JackDelay driver.
+;
+DumpPercentage=50
+
+; DefaultMaxDelay=10000
+;
+; Specify the default full audio delay in mS.  Valid values are 100 - 20000.
+; Used only by the JackDelay driver.
+;
+DefaultMaxDelay=10000
+
+;
+; Specify a set of JACK ports to connect automatically at startup.
+; Used only by the JackDelay driver.
+;
+JackSource1=system:capture_1
+JackDestination1=jackdelay_1:input_1
+
+JackSource2=jackdelay_1:output_1
+JackDestination2=system:playback_1
+
+JackSource3=system:capture_2
+JackDestination3=jackdelay_1:input_2
+
+JackSource4=jackdelay_1:output_2
+JackDestination4=system:playback_2
+
+;
+; Ignore bypass mode (useful only for debugging the AirTools driver).
+; 
+SuppressBypassMode=Yes|No
+
+;
+; Start the delay automatically upon startup
+; (used only by the JackDelay driver)
+;
+ActiveOnStart=No
+
+;
+; RML Command Interface
+;
+; Delays can be controlled by sending a 'GO' RML to the port specified by
+; the TcpPort parameter of the following form:
+;
+;   GO <delay-num> O <cmd> 1 1!
+;
+; where <cmd> can be:
+;  1 - Start Delay
+;  2 - Exit Delay
+;  3 - Dump Delay
+;
+; RML Commands can be sent upon change of delay state or length.
+; Possible states are:
+;   Entering
+;   Entered
+;   Exiting
+;   Exited
+;   Dumped
+;   DelayChange
+;
+
+RmlOnBypassedAddress1=192.168.10.29
+RmlOnBypassedPort1=5859
+RmlOnBypassedCommand1=LB Delay Bypassed!
+
+RmlOnEnteringAddress1=192.168.10.29
+RmlOnEnteringPort1=5859
+RmlOnEnteringCommand1=LB Delay Entering!
+
+RmlOnEnteredAddress1=192.168.10.29
+RmlOnEnteredPort1=5859
+RmlOnEnteredCommand1=LB Delay Entered!
+
+RmlOnExitingAddress1=192.168.10.29
+RmlOnExitingPort1=5859
+RmlOnExitingCommand1=LB Delay Exiting!
+
+RmlOnExitedAddress1=192.168.10.29
+RmlOnExitedPort1=5859
+RmlOnExitedCommand1=LB Delay Exited!
+
+RmlOnDumpAddress1=192.168.10.29
+RmlOnDumpPort1=5859
+RmlOnDumpCommand1=LB Delay Dumped!
+
+RmlOnDelayChangeAddress1=192.168.10.29
+RmlOnDelayChangePort1=5859
+RmlOnDelayChangeCommand1=LB Delay is %d!
+
+; Additional delay devices can be configured...
+;
+;[Delay2]
+;Type=Dummy
+;
+
+; UDP queues can be configured to delay UDP packet traffic to correspond 
+; to a current delay.
+; 
+[UdpQueue1]
+
+; InputPort=<port-num>
+;
+; The UDP port number to use to receiving incoming packets.
+InputPort=1234
+
+; DelayNumber=<delay-num>
+;
+; The number of the delay device to associate this queue with (e.g.
+; 'DelayNumber=1 associates with the device specified in [Delay1].
+;
+DelayNumber=1
+
+; FixedDelay=<delay>
+;
+; A static, fixed delay to apply, independent of the current state of
+; the associated broadcast delay, in milliseconds.  Can take positive or
+; negative values.  Default value is '0'.
+;
+FixedDelay=0
+
+; DestructiveDump=Yes|No
+;
+; Controls what should be done with data pending in the queue in the event
+; that the associated delay is dumped.  If set to 'Yes', any such data
+; will be silently discarded; if 'no', then all data in the dumped portion
+; of the queue will be sent immediately.  Default is 'Yes'.
+;
+DestructiveDump=Yes
+
+; DestinationAddress1=<ip-addr>
+; DestinationPort1=<port-num>
+;
+; The destination IP address and UDP port to which delayed packet should be
+; sent.
+;
+DestinationAddress1=192.168.10.29
+DestinationPort1=5678
+
+;
+; Multiple destinations can be configured...
+;
+DestinationAddress1=192.168.10.29
+DestinationPort1=5678
+
+
+; DestinationCicDevice1=<tty-dev>
+; DestinationCicSpeed1=<baud-rate>
+;
+; Configure a destination using an ncRelay-compatible serial link.
+;
+;DestinationCicDevice1=/dev/ttyS0
+;DestinationCicSpeed1=9600

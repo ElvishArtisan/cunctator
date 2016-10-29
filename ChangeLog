@@ -1,0 +1,102 @@
+2011-02-16 Fred Gleason <fredg@paravelsystems.com>
+	* Initial package creation
+2011-02-17 Fred Gleason <fredg@paravelsystems.com>
+	* Added common library components in 'lib/'.
+2011-02-17 Fred Gleason <fredg@paravelsystems.com>
+	* Stubbed out the delay driver subsystem.
+2011-02-17 Fred Gleason <fredg@paravelsystems.com>
+	* Stubbed out the front-end connection subsystem.
+2011-02-18 Fred Gleason <fredg@paravelsystems.com>
+	* Stubbed out basic command infrastructure.
+2011-02-22 Fred Gleason <fredg@paravelsystems.com>
+	* Got basic Dummy delay driver working.
+2011-02-22 Fred Gleason <fredg@paravelsystems.com>
+	* Stubbed out cunc(1) in 'cunc/'.
+2011-02-24 Fred Gleason <fredg@paravelsystems.com>
+	* Got basic cunc(1) functions working.
+2011-02-25 Fred Gleason <fredg@paravelsystems.com>
+	* Implemented a UDP relay in 'cuncd/udpdelay.cpp' and
+	'cuncd/udpdelay.h'.
+2011-03-01 Fred Gleason <fredg@paravelsystems.com>
+	* Stubbed out a driver for the AirTools 6100 Broadcast Delay
+	in 'cuncd/airtools.cpp' and 'cuncd/airtools.h'.
+2011-03-07 Fred Gleason <fredg@paravelsystems.com>
+	* Implemented basic state reading in 'cuncd/airtools.cpp'.
+2011-03-07 Fred Gleason <fredg@paravelsystems.com>
+	* Implemented Enter, Exit and Dump commands for the AirTools
+	driver in 'cuncd/airtools.cpp' and 'cund/airtools.h'.
+2011-03-13 Fred Gleason <fredg@paravelsystems.com>
+	* Added a driver for the Eventide BD600 Broadcast Delay in
+	'cuncd/bd600.cpp' and 'cuncd/bd600.h'.
+2011-03-13 Fred Gleason <fredg@paravelsystems.com>
+	* Added an init script in 'rc.cuncd'.
+2011-03-16 Fred Gleason <fredg@paravelsystems.com>
+	* Implemented the 'make rpm' target.
+2011-03-16 Fred Gleason <fredg@paravelsystems.com>
+	* Added icons in 'icons/'
+	* Added a menu entry in 'xdg/cunctator_cunc.desktop'.
+2011-03-17 Fred Gleason <fredg@paravelsystems.com>
+	* Changed the delay time display in 'cunc/cuncclient.cpp' to show
+	tenths of a second.
+2011-03-17 Fred Gleason <fredg@paravelsystems.com>
+	* Implemented an RML control interface in 'cuncd/rmlengine.cpp'
+	and 'cuncd/rmlengine.h'.
+2011-03-18 Fred Gleason <fredg@paravelsystems.com>
+	* Updated 'conf/cunctator.conf-sample'.
+2011-04-22 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 1.0.0.
+2011-05-20 Fred Gleason <fredg@paravelsystems.com>
+	* Added the ability to communicate directly with an ncRelay system
+	from a UDP queue.
+2011-05-20 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 1.1.0.
+2011-08-05 Fred Gleason <fredg@paravelsystems.com>
+	* Added support for the long form of the 'GO' RML in
+	'cuncd/cuncd.cpp'.
+2011-08-05 Fred Gleason <fredg@paravelsystems.com>
+	* Added a line 4 binding for the 'GO' RML.
+2011-08-05 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 1.2.0.
+2011-08-05 Fred Gleason <fredg@paravelsystems.com>
+	* Added 'conf/cunctator.conf-callcommander' to cuncatator.spec.in'.
+2011-08-15 Fred Gleason <fredg@paravelsystems.com>
+	* Implemented the 'SuppressBypassMode=' directive in
+	'cunc/airtools.cpp'.
+2011-08-15 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 1.2.1.
+2011-08-16 Fred Gleason <fredg@paravelsystems.com>
+	* Added code to display firmware versions for the AirTools 6100
+	in 'cuncd/airtools.cpp'.
+2011-08-16 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 1.2.2.
+2011-10-19 Fred Gleason <fredg@paravelsystems.com>
+	* Stubbed out a 'Jack Delay' device in 'cuncd/jackdelay.cpp' and
+	'cuncd/jackdelay.h'.
+2011-10-21 Fred Gleason <fredg@paravelsystems.com>
+	* Implemented automatic JACK port connection in 'cuncd/jackdelay.cpp'.
+2011-10-21 Fred Gleason <fredg@paravelsystems.com>
+	* Implemented delay 'enter' and 'exit' functions for the JackDelay
+	driver in 'cuncd/jackdleay.cpp' and 'cuncd/jackdelay.h'.
+2011-10-21 Fred Gleason <fredg@paravelsystems.com>
+	* Implemented support for stereo audio for the JackDelay
+	driver in 'cuncd/jackdleay.cpp' and 'cuncd/jackdelay.h'.
+2011-10-25 Fred Gleason <fredg@paravelsystems.com>
+	* Created a 'Ringbuffer' class in 'lib/ringbuffer.cpp' and
+	'lib/ringbuffer.h'.
+	* Modified the JackDelay driver to use the 'Ringbuffer' class in
+	'cuncd/jackdelay.cpp' and 'cund/jackdelay.h'.
+2011-10-25 Fred Gleason <fredg@paravelsystems.com>
+	* Implemented the 'dump()' method for the JackDelay driver in
+	'cuncd/jackdelay.cpp'.
+2012-07-26 Fred Gleason <fredg@paravelsystems.com>
+	* Added an 'ActiveOnStart=' parameter to cunctator(5) in
+	'cuncd/jackdelay.cpp' annd 'cuncd/jackdelay.h'.
+2012-07-26 Fred Gleason <fredg@paravelsystems.com>
+	* Removed uneeded callbacks from 'cuncd/jackdelay.cpp'.
+2012-07-26 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 1.3.0.
+2012-07-27 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed a bug in 'cuncd/cuncd.cpp' that caused the JackDelay
+	driver to fail to start when invoked from the init script.
+2012-07-27 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 1.3.1.

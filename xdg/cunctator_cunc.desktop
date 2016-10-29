@@ -1,0 +1,10 @@
+[Desktop Entry]
+Categories=AudioVideo;Player;
+Encoding=UTF-8
+Name=Broadcast Delay Control
+GenericName=Broadcast Delay Control
+Exec=cunc
+Icon=cunc
+Path=
+Type=Application
+Terminal=false

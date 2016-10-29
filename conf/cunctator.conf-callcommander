@@ -1,0 +1,66 @@
+; cunctator.conf
+;
+; This is the sample configuration file for Cunctator, a system for
+; controlling broadcast delay units.  It is intended to illustrate how
+; to interface Cunctator with a CallCommander using CallCommander's
+; 'mlm-cunctator' plug-in.
+;
+; (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+;
+;      $Id: cunctator.conf-callcommander,v 1.1 2011/08/05 20:59:52 cvs Exp $
+;
+;   This program is free software; you can redistribute it and/or modify
+;   it under the terms of the GNU General Public License version 2 as
+;   published by the Free Software Foundation.
+;
+;   This program is distributed in the hope that it will be useful,
+;   but WITHOUT ANY WARRANTY; without even the implied warranty of
+;   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;   GNU General Public License for more details.
+;
+;   You should have received a copy of the GNU General Public
+;   License along with this program; if not, write to the Free Software
+;   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+;
+;
+; Use this as a basis for your own configurations.
+
+[Global]
+; TcpPort=<port-num>
+;
+; The TCP port number on which to listen for incoming control connections.
+; default is '3749'.
+;
+TcpPort=3749
+
+[Delay1]
+; Type=<type-str>
+;
+; The type of delay unit to control.  Currently supported values are:
+;   'Dummy' -- Internal dummy delay (for testing and debug purposes).
+;   'AirTools' -- The AirTools 6100 Broadcast Delay
+;   'BD600' -- The Eventide BD600 Broadcast Delay
+;
+Type=Dummy
+
+; TtyDevice=<dev-name>
+;
+; Devices that are controlled by means of serial ports have the port to
+; use specified here.  Currently, only the 'AirTools' and 'BD600' drivers
+; use this directive.  Default value is '/dev/ttyS0'.
+TtyDevice=/dev/ttyS0
+
+; TtySpeed=<speed>
+;
+; Specifies the baud rate of the serial interface specified by 'TtyDevice='.
+; Currently, only the 'AirTools' (default value 38400) and 'BD600' 
+; (default value 9600) drivers use this directive.
+;
+TtySpeed=9600
+
+;
+; RML Command Interface
+;
+RmlOnDelayChangeAddress1=127.0.0.1
+RmlOnDelayChangePort1=3750
+RmlOnDelayChangeCommand1=%d

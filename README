@@ -1,0 +1,7 @@
+This is the README file for the Cunctator package.
+
+This software comes with ABSOLUTELY NO WARRANTY.  See the file 
+COPYING for details.
+
+This is Cunctator, a system for monitoring, controlling and utilizing
+broadcast audio delays in a device-independent fashion.
