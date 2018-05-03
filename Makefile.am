@@ -40,7 +40,7 @@ rpm:	dist
 	rm -rf $(RPM_ROOT)/BUILD/cunctator-$(VERSION)
 
 EXTRA_DIST = cunctator.spec.in cunctator.pro autogen.sh\
-             get_target.sh get_distro.sh\
+             get_target.sh get_distro.pl\
              PACKAGE_VERSION rc.cuncd
 
 zip:	dist
