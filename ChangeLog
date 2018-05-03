@@ -106,3 +106,6 @@
 	* Cleaned up auto-tools warnings.
 2018-05-03 Fred Gleason <fredg@paravelsystems.com>
 	* Cleaned up compiler warning.
+2018-05-03 Fred Gleason <fredg@paravelsystems.com>
+	* Updated the 'make rpm' target to work with per-user RPM build
+	trees.

@@ -4,9 +4,7 @@
 ##
 ## Use automake to process this into a Makefile.in
 ##
-##   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
-##
-##     $Id: Makefile.am,v 1.7 2011/03/16 15:32:36 cvs Exp $
+##   (C) Copyright 2011-2018 Fred Gleason <fredg@paravelsystems.com>
 ##
 ##   This program is free software; you can redistribute it and/or modify
 ##   it under the terms of the GNU General Public License version 2 as
@@ -37,12 +35,13 @@ uninstall-exec:
 	rm -f /etc/init.d/cuncd
 
 rpm:	dist
-	cp cunctator-$(VERSION).tar.gz $(RPM_ROOT)/SOURCES/
-	$(RPMBUILD) -ba cunctator.spec
-	mv $(RPM_ROOT)/RPMS/$(ARCH)/cunctator-$(VERSION)-@RPM_RELEASE@.$(ARCH).rpm $(top_srcdir)/
-	mv $(RPM_ROOT)/SRPMS/cunctator-$(VERSION)-@RPM_RELEASE@.src.rpm $(top_srcdir)/
-	rm $(RPM_ROOT)/SOURCES/cunctator-$(VERSION).tar.gz
-	rm -rf $(RPM_ROOT)/BUILD/cunctator-$(VERSION)
+	mkdir -p $(HOME)/rpmbuild/SOURCES
+	cp cunctator-$(VERSION).tar.gz $(HOME)/rpmbuild/SOURCES/
+	$(RPMBUILD) -ba --target $(ARCH)-$(VENDOR)-linux cunctator.spec
+	mv $(HOME)/rpmbuild/RPMS/$(ARCH)/cunctator-*.rpm $(top_srcdir)/
+	mv $(HOME)/rpmbuild/SRPMS/cunctator-*.src.rpm $(top_srcdir)/
+	rm $(HOME)/rpmbuild/SOURCES/cunctator-$(VERSION).tar.gz
+	rm -rf $(HOME)/rpmbuild/BUILD/cunctator-$(VERSION)
 
 EXTRA_DIST = cunctator.spec.in cunctator.pro autogen.sh\
              get_target.sh get_distro.pl\
