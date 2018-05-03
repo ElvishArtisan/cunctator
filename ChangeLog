@@ -104,3 +104,5 @@
 	* Updated autoconf components for detecting Qt3 and the distro type.
 2018-05-03 Fred Gleason <fredg@paravelsystems.com>
 	* Cleaned up auto-tools warnings.
+2018-05-03 Fred Gleason <fredg@paravelsystems.com>
+	* Cleaned up compiler warning.

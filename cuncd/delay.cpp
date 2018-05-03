@@ -61,7 +61,7 @@ QString Delay::description()
 
 Cunctator::DelayState Delay::state()
 {
-  Cunctator::StateUnknown;
+  return Cunctator::StateUnknown;
 }
 
 
