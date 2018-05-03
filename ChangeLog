@@ -109,3 +109,5 @@
 2018-05-03 Fred Gleason <fredg@paravelsystems.com>
 	* Updated the 'make rpm' target to work with per-user RPM build
 	trees.
+2018-05-03 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 1.3.2.
