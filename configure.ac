@@ -3,9 +3,7 @@ dnl
 dnl Autoconf configuration for Cunctator.
 dnl Use autoconf to process this into a configure script
 dnl
-dnl   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
-dnl
-dnl     $Id: configure.in,v 1.7 2011/10/19 23:26:26 cvs Exp $
+dnl   (C) Copyright 2011-2018 Fred Gleason <fredg@paravelsystems.com>
 dnl
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License version 2 as
@@ -21,9 +19,13 @@ dnl   License along with this program; if not, write to the Free Software
 dnl   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
 dnl Use autoconf to process this into a configure script
-AC_INIT(cunctator,`cat PACKAGE_VERSION`,fredg@paravelsystems.com)
-AM_INIT_AUTOMAKE(cunctator,`cat PACKAGE_VERSION`)
+
+AC_INIT([cunctator],m4_esyscmd(cat PACKAGE_VERSION))
+AM_INIT_AUTOMAKE
 AC_SUBST(RPM_RELEASE,1)
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+AC_CONFIG_MACRO_DIR([m4])
+PKG_VERSION=m4_esyscmd(cat PACKAGE_VERSION)
 
 #
 # Some Fully Resolved Install Paths
@@ -105,7 +107,7 @@ else
   AC_SUBST(RPM_ROOT,/usr/src/packages)
 fi 
 
-AC_OUTPUT(./Makefile \
+AC_OUTPUT( \
   lib/Makefile \
   cuncd/Makefile \
   cunc/Makefile \
@@ -114,4 +116,5 @@ AC_OUTPUT(./Makefile \
   icons/Makefile \
   xdg/Makefile \
   cunctator.spec \
+  Makefile \
 ) 

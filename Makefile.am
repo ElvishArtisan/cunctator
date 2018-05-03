@@ -24,6 +24,11 @@
 
 SUBDIRS = lib cuncd cunc conf docs icons xdg
 
+ACLOCAL_AMFLAGS = -I m4
+
+maintainer-clean-local:	
+	rm -rf m4
+
 install-exec-local:	
 	mkdir -p /etc/init.d
 	cp rc.cuncd /etc/init.d/cuncd
