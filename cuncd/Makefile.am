@@ -1,10 +1,8 @@
-## automake.am
+## Makefile.am
 ##
 ## cuncd/ Makefile.am for Cunctator
 ##
 ## (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
-##
-##     $Id: Makefile.am,v 1.11 2011/10/19 23:26:26 cvs Exp $
 ##
 ## Use automake to process this into a Makefile.in
 ##

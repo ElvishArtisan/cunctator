@@ -1,10 +1,5 @@
 #!/bin/sh
 ##
-##    Davit - An affiliate affadavit management system.
-##    by Fred Gleason <fredg@paravelsystems.com>
-##
-##      $Id: autogen.sh,v 1.1.1.1 2011/02/16 23:05:34 cvs Exp $
-##
 ##    Adapted from './autogen.sh' in the Jack Audio Connection Kit.
 ##    Copyright (C) 2001-2003 Paul Davis, et al.
 ##

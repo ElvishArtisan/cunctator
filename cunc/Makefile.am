@@ -1,10 +1,8 @@
-## automake.am
+## Makefile.am
 ##
 ## Automake.am for cunc/
 ##
 ##   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
-##
-##      $Id: Makefile.am,v 1.1 2011/02/23 01:02:18 cvs Exp $
 ##
 ##   This program is free software; you can redistribute it and/or modify
 ##   it under the terms of the GNU General Public License version 2 as

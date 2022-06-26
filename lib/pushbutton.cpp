@@ -4,8 +4,6 @@
 //
 //   (C) Copyright 2002-2003,2011 Fred Gleason <fredg@paravelsystems.com>
 //
-//    $Id: pushbutton.cpp,v 1.1 2011/02/24 16:43:54 cvs Exp $
-//
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Library General Public License 
 //   version 2 as published by the Free Software Foundation.

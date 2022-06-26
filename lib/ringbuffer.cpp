@@ -4,8 +4,6 @@
 //
 // (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
 //
-//    $Id: ringbuffer.cpp,v 1.2 2011/10/25 20:02:07 cvs Exp $
-//
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Library General Public License 
 //   version 2 as published by the Free Software Foundation.

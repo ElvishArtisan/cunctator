@@ -1,10 +1,8 @@
 # davit.pro
 #
-# The davit/ QMake project file for Davit
+# The cuncd/ QMake project file for Cunctator
 #
 # (C) Copyright 2008 Fred Gleason <fredg@paravelsystems.com>
-#
-#      $Id: cuncd.pro,v 1.1.1.1 2011/02/16 23:05:34 cvs Exp $
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License version 2 as

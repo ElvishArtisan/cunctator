@@ -1,10 +1,8 @@
-## automake.am
+## Makefile.am
 ##
-## xdg/automake.am for Cunctator
+## xdg/Makefile.am for Cunctator
 ##
 ##   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
-##
-##      $Id: Makefile.am,v 1.1 2011/03/16 15:32:36 cvs Exp $
 ##
 ##   This program is free software; you can redistribute it and/or modify
 ##   it under the terms of the GNU General Public License version 2 as

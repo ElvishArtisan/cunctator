@@ -1,6 +1,6 @@
 // cuncconfig.h
 //
-// A container class for CallCommander mld(8) Configuration
+// A container class for Cunctator Configuration
 //
 //   (C) Copyright 2002-2004 Fred Gleason <fredg@paravelsystems.com>
 //

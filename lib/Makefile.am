@@ -1,12 +1,10 @@
-## automake.am
+## Makefile.am
 ##
-## Automake.am for lib/
+## Makefile.am for lib/
 ##
 ## Use automake to process this into a Makefile.in
 ##
 ##   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
-##
-##     $Id: Makefile.am,v 1.4 2011/10/25 18:26:53 cvs Exp $
 ##
 ##   This program is free software; you can redistribute it and/or modify
 ##   it under the terms of the GNU General Public License version 2 as
