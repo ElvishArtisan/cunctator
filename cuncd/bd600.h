@@ -2,7 +2,7 @@
 //
 // Cunctator delay driver for the Eventide BD600
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
 #ifndef BD600_H
 #define BD600_H
 
-#include <qsocketnotifier.h>
-#include <qtimer.h>
+//#include <qsocketnotifier.h>
+#include <QTimer>
 
 #include <ttydevice.h>
 
@@ -34,7 +34,7 @@ class Bd600 : public Delay
 {
  Q_OBJECT
  public:
-  Bd600(Profile *p,int n,bool debug,QObject *parent,const char *name=0);
+  Bd600(Profile *p,int n,bool debug,QObject *parent);
   ~Bd600();
   Cunctator::DelayType type();
   QString description();
@@ -47,14 +47,14 @@ class Bd600 : public Delay
   void dump();
 
  private slots:
-  void readyReadData(int fd);
+  void readyReadData();
   void watchdogData();
 
  private:
   Cunctator::DelayState bd600_state;
   int bd600_delay_length;
   TTYDevice *bd600_tty;
-  QSocketNotifier *bd600_notify;
+  //  QSocketNotifier *bd600_notify;
   QTimer *bd600_watchdog_timer;
 };
 

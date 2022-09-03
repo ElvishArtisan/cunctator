@@ -2,7 +2,7 @@
 //
 // A delay queue for UDP packets.
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -24,20 +24,20 @@
 #include <vector>
 #include <queue>
 
-#include <qobject.h>
-#include <qsocketdevice.h>
-#include <qtimer.h>
+#include <QObject>
+#include <QTimer>
+#include <QUdpSocket>
 
 #include <cunc.h>
 
 #include <profile.h>
 #include <ttydevice.h>
 
-class UdpQueue : public QObject
+class UdpQueue : public QUdpSocket
 {
   Q_OBJECT;
  public:
-  UdpQueue(Profile *p,int id,QObject *parent=0,const char *name=0);
+  UdpQueue(Profile *p,int id,QObject *parent=0);
   ~UdpQueue();
 
  public slots:
@@ -45,7 +45,7 @@ class UdpQueue : public QObject
   void delayDumped(int id);
 
  private slots:
-  void readyReadData(int fd);
+  void readyReadData();
   void cicReadData(int fd);
   void checkQueueData();
   void sendCicHeartbeatData();
@@ -58,7 +58,7 @@ class UdpQueue : public QObject
   double GetTimestamp();
   bool ValidateCicPacket(const QString &pack) const;
   unsigned GetCicChecksum(const QString &str) const;
-  QSocketDevice *queue_socket;
+  QUdpSocket *queue_socket;
   int queue_input_port;
   std::vector<QHostAddress> queue_destination_addresses;
   std::vector<int> queue_destination_ports;

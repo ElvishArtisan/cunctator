@@ -21,15 +21,13 @@
 #ifndef CUNCCLIENT_H
 #define CUNCCLIENT_H
 
-#include <qapplication.h>
-#include <qmainwindow.h>
-#include <qsize.h>
-#include <qsizepolicy.h>
-#include <qsocket.h>
-#include <qlabel.h>
-#include <qtimer.h>
+#include <QApplication>
+#include <QLabel>
+#include <QMainWindow>
+#include <QTcpSocket>
+#include <QTimer>
 
-#include <pushbutton.h>
+#include "../lib/pushbutton.h"
 
 #define CUNC_USAGE "[--hostname=<hostname>] [--port=<port>] [--delay=<delay-num>]\n\nWhere <hostname> is the name or IP address of the host to connect to\n(default = localhost), <port> is the TCP port to connect to\n(default = 3749)\n"
 #define CUNC_DEFAULT_ADDR "localhost"
@@ -38,7 +36,7 @@ class MainWidget : public QMainWindow
 {
   Q_OBJECT
  public:
-  MainWidget(QWidget *parent=0,const char *name=0);
+  MainWidget(QWidget *parent=0);
   QSize sizeHint() const;
   QSizePolicy sizePolicy() const;
 
@@ -50,7 +48,7 @@ class MainWidget : public QMainWindow
   void socketConnectedData();
   void socketClosedData();
   void readyReadData();
-  void errorData(int err);
+  void errorData(QAbstractSocket::SocketError err);
   
 
  private:
@@ -60,7 +58,7 @@ class MainWidget : public QMainWindow
   PushButton *cunc_exit_button;
   PushButton *cunc_dump_button;
   QLabel *cunc_delay_label;
-  QSocket *cunc_socket;
+  QTcpSocket *cunc_socket;
   QString cunc_buffer;
   unsigned cunc_delay_id;
   QTimer *cunc_dump_timer;

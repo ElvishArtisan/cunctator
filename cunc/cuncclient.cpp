@@ -21,21 +21,21 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include <qmessagebox.h>
-#include <qpixmap.h>
+#include <QMessageBox>
+#include <QPixmap>
 
-#include <cunc.h>
-#include <cmdswitch.h>
+#include "../lib/cmdswitch.h"
+#include "../lib/cunc.h"
 
-#include <cuncclient.h>
+#include "cuncclient.h"
 
 //
 // Icons
 //
 #include "../icons/cunc-16x16.xpm"
 
-MainWidget::MainWidget(QWidget *parent,const char *name)
-  : QMainWindow(parent,name)
+MainWidget::MainWidget(QWidget *parent)
+  : QMainWindow(parent)
 {
   QString hostname=CUNC_DEFAULT_ADDR;
   unsigned port=CUNC_TCP_PORT;
@@ -45,8 +45,7 @@ MainWidget::MainWidget(QWidget *parent,const char *name)
   //
   // Read Command Options
   //
-  CmdSwitch *cmd=
-    new CmdSwitch(qApp->argc(),qApp->argv(),"cunc",CUNC_USAGE);
+  CmdSwitch *cmd=new CmdSwitch("cunc",CUNC_USAGE);
   for(unsigned i=0;i<cmd->keys();i++) {
     if(cmd->key(i)=="--hostname") {
       hostname=cmd->value(i);
@@ -70,7 +69,7 @@ MainWidget::MainWidget(QWidget *parent,const char *name)
     }
     if(!cmd->processed(i)) {
       fprintf(stderr,"cuncd: unrecognized option \"%s\"\n",
-	      (const char *)cmd->key(i));
+	      cmd->key(i).toUtf8().constData());
       exit(256);
     }
   }
@@ -79,10 +78,8 @@ MainWidget::MainWidget(QWidget *parent,const char *name)
   //
   // Set Window Size
   //
-  setMinimumWidth(sizeHint().width());
-  setMaximumWidth(sizeHint().width());
-  setMinimumHeight(sizeHint().height());
-  setMaximumHeight(sizeHint().height());
+  setMinimumSize(sizeHint());
+  setMaximumSize(sizeHint());
 
   //
   // Generate Fonts
@@ -92,13 +89,13 @@ MainWidget::MainWidget(QWidget *parent,const char *name)
   QFont label_font("courier",40,QFont::Bold);
   label_font.setPixelSize(40);
 
-  setCaption(tr("Broadcast Delay Control"));
+  setWindowTitle(tr("Broadcast Delay Control"));
 
   //
   // Create Icons
   //
   QPixmap *icon_map=new QPixmap(cunc_16x16_xpm);
-  setIcon(*icon_map);
+  setWindowIcon(*icon_map);
 
   //
   // Enter Button
@@ -122,7 +119,7 @@ MainWidget::MainWidget(QWidget *parent,const char *name)
   cunc_delay_label=new QLabel(this);
   cunc_delay_label->setGeometry(200,10,120,50);
   cunc_delay_label->setFont(label_font);
-  cunc_delay_label->setAlignment(AlignCenter);
+  cunc_delay_label->setAlignment(Qt::AlignCenter);
   cunc_delay_label->setFrameStyle(QFrame::Box|QFrame::Raised);
 
   //
@@ -131,20 +128,22 @@ MainWidget::MainWidget(QWidget *parent,const char *name)
   cunc_dump_button=new PushButton(tr("Dump"),this);
   cunc_dump_button->setGeometry(340,10,80,50);
   cunc_dump_button->setFont(button_font);
-  cunc_dump_button->setFlashColor(red);
+  cunc_dump_button->setFlashColor(Qt::red);
   connect(cunc_dump_button,SIGNAL(clicked()),this,SLOT(dumpPushed()));
 
   cunc_dump_timer=new QTimer(this);
+  cunc_dump_timer->setSingleShot(true);
   connect(cunc_dump_timer,SIGNAL(timeout()),this,SLOT(dumpFlashResetData()));
 
   //
   // Data Socket
   //
-  cunc_socket=new QSocket(this);
+  cunc_socket=new QTcpSocket(this);
   connect(cunc_socket,SIGNAL(connected()),this,SLOT(socketConnectedData()));
-  connect(cunc_socket,SIGNAL(connectionClosed()),this,SLOT(socketClosedData()));
+  connect(cunc_socket,SIGNAL(disconnected()),this,SLOT(socketClosedData()));
   connect(cunc_socket,SIGNAL(readyRead()),this,SLOT(readyReadData()));
-  connect(cunc_socket,SIGNAL(error(int)),this,SLOT(errorData(int)));
+  connect(cunc_socket,SIGNAL(error(QAbstractSocket::SocketError)),
+	  this,SLOT(errorData(QAbstractSocket::SocketError)));
   cunc_socket->connectToHost(hostname,port);
 }
 
@@ -207,7 +206,7 @@ void MainWidget::readyReadData()
   int n;
   char data[1500];
 
-  while((n=cunc_socket->readBlock(data,1500))>0) {
+  while((n=cunc_socket->read(data,1500))>0) {
     for(int i=0;i<n;i++) {
       if(isprint(data[i])) {
 	if(data[i]=='!') {
@@ -223,22 +222,17 @@ void MainWidget::readyReadData()
 }
 
 
-void MainWidget::errorData(int err)
+void MainWidget::errorData(QAbstractSocket::SocketError err)
 {
-  switch((QSocket::Error)err) {
-  case QSocket::ErrConnectionRefused:
+  switch(err) {
+  case QAbstractSocket::ConnectionRefusedError:
     QMessageBox::warning(this,tr("Broadcast Delay Control"),
 			 tr("Connection Refused!"));
     break;
 
-  case QSocket::ErrHostNotFound:
+  case QAbstractSocket::HostNotFoundError:
     QMessageBox::warning(this,tr("Broadcast Delay Control"),
 			 tr("Host Not Found!"));
-    break;
-
-  case QSocket::ErrSocketRead:
-    QMessageBox::warning(this,tr("Broadcast Delay Control"),
-			 tr("Socket Read Error!"));
     break;
 
   default:
@@ -254,7 +248,7 @@ void MainWidget::ProcessCommand(const QString &msg)
 {
   //printf("msg: %s\n",(const char *)msg);
 
-  QStringList cmds=cmds.split(" ",msg);
+  QStringList cmds=msg.split(" ",QString::SkipEmptyParts);
   bool ok;
   unsigned id;
   int delay_len;
@@ -320,7 +314,7 @@ void MainWidget::ProcessCommand(const QString &msg)
       return;
     }
     cunc_dump_button->setFlashingEnabled(true);
-    cunc_dump_timer->start(5000,true);
+    cunc_dump_timer->start(5000);
   }
 
   if(cmds[0]=="DM") {   // Delay Model
@@ -328,25 +322,24 @@ void MainWidget::ProcessCommand(const QString &msg)
     if((!ok)||(id!=cunc_delay_id)) {
       return;
     }
-    for(unsigned i=3;i<cmds.size();i++) {
+    for(int i=3;i<cmds.size();i++) {
       desc+=(cmds[i]+" ");
     }
-    setCaption(desc);
+    setWindowTitle(desc);
   }
 }
 
 
 void MainWidget::SendCommand(const QString &msg)
 {
-  cunc_socket->writeBlock(msg,msg.length());
+  cunc_socket->write(msg.toUtf8());
 }
 
 
 int main(int argc,char *argv[])
 {
   QApplication a(argc,argv,true);
-  MainWidget *w=new MainWidget(NULL,"main");
-  a.setMainWidget(w);
+  MainWidget *w=new MainWidget();
   w->show();
   return a.exec();
 }

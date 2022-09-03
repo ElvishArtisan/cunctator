@@ -2,7 +2,7 @@
 //
 // A container class for Cunctator Configuration
 //
-//   (C) Copyright 2002-2004 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2002-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -31,8 +31,8 @@
 #include "bd600.h"
 #include "jackdelay.h"
 
-CuncConfig::CuncConfig(bool debug,QObject *parent,const char *name)
-  : QObject(parent,name)
+CuncConfig::CuncConfig(bool debug,QObject *parent)
+  : QObject(parent)
 {
   clear();
   conf_debug=debug;
@@ -148,23 +148,24 @@ bool CuncConfig::load()
   //
   // Delays
   //
+
   section=QString().sprintf("Delay%u",count);
   str=p->stringValue(section,"Type","Dummy",&ok);
   while(ok) {
     added=false;
-    if(str.lower()=="dummy") {
+    if(str.toLower()=="dummy") {
       conf_delays.push_back(new Dummy(p,count-1,conf_debug,this));
       added=true;
     }
-    if(str.lower()=="airtools") {
+    if(str.toLower()=="airtools") {
       conf_delays.push_back(new AirTools(p,count-1,conf_debug,this));
       added=true;
     }
-    if(str.lower()=="bd600") {
+    if(str.toLower()=="bd600") {
       conf_delays.push_back(new Bd600(p,count-1,conf_debug,this));
       added=true;
     }
-    if(str.lower()=="jackdelay") {
+    if(str.toLower()=="jackdelay") {
       conf_delays.push_back(new JackDelay(p,count-1,conf_debug,this));
       added=true;
     }
@@ -182,7 +183,6 @@ bool CuncConfig::load()
 	      SLOT(sendDelayState(int,Cunctator::DelayState,int)));
       connect(conf_delays.back(),SIGNAL(dumped(int)),
 	      conf_rml_engines.back(),SLOT(sendDelayDumped(int)));
- 
     }
     section=QString().sprintf("Delay%u",++count);
     str=p->stringValue(section,"Type","Dummy",&ok);
@@ -208,6 +208,7 @@ bool CuncConfig::load()
     else {
       syslog(LOG_WARNING,
 	     "DelayNumber entry is missing/invalid in [UdpQueue%u]",count);
+      exit(1);
     }
     section=QString().sprintf("UdpQueue%u",++count);
     num=p->intValue(section,"DelayNumber",0,&ok)-1;

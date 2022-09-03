@@ -2,7 +2,7 @@
 //
 // Delay driver the AirTools 6100 Broadcast Audio Delay
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -23,8 +23,8 @@
 
 #include <stdint.h>
 
-#include <qtimer.h>
-#include <qsocketnotifier.h>
+#include <QTimer>
+//#include <qsocketnotifier.h>
 
 #include <ttydevice.h>
 
@@ -56,7 +56,7 @@ class AirTools : public Delay
 {
  Q_OBJECT
  public:
-  AirTools(Profile *p,int n,bool debug,QObject *parent,const char *name=0);
+  AirTools(Profile *p,int n,bool debug,QObject *parent);
   ~AirTools();
   Cunctator::DelayType type();
   QString description();
@@ -70,7 +70,7 @@ class AirTools : public Delay
 
  private slots:
   void queryDelayData();
-  void readyReadData(int fd);
+  void readyReadData();
 
  private:
   void SendCommand(unsigned mask);
@@ -78,7 +78,7 @@ class AirTools : public Delay
   void ApplyChecksum(char *data,int len);
   Cunctator::DelayState airtools_state;
   TTYDevice *airtools_tty;
-  QSocketNotifier *airtools_notify;
+  //  QSocketNotifier *airtools_notify;
   int airtools_unit_address;
   int airtools_delay_length;
   int airtools_msg_istate;

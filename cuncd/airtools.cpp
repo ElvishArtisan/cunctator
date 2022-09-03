@@ -20,8 +20,8 @@
 
 #include "airtools.h"
 
-AirTools::AirTools(Profile *p,int n,bool debug,QObject *parent,const char *name)
-  : Delay(p,n,debug,parent,name)
+AirTools::AirTools(Profile *p,int n,bool debug,QObject *parent)
+  : Delay(p,n,debug,parent)
 {
   airtools_stats_requested=false;
   airtools_state=Cunctator::StateEntered;
@@ -49,7 +49,7 @@ AirTools::AirTools(Profile *p,int n,bool debug,QObject *parent,const char *name)
 AirTools::~AirTools()
 {
   delete airtools_tty;
-  delete airtools_notify;
+  //  delete airtools_notify;
 }
 
 
@@ -82,13 +82,16 @@ int AirTools::delayLength()
 
 bool AirTools::connect()
 {
-  if(!airtools_tty->open(IO_ReadWrite)) {
+  if(!airtools_tty->open(QIODevice::ReadWrite)) {
     return false;
   }
+  /*
   airtools_notify=
-    new QSocketNotifier(airtools_tty->socket(),QSocketNotifier::Read,this);
+    new QSocketNotifier(airtools_tty->socketDescriptor(),QSocketNotifier::Read,this);
   QObject::connect(airtools_notify,SIGNAL(activated(int)),
 		   this,SLOT(readyReadData(int)));
+  */
+  QObject::connect(airtools_tty,SIGNAL(readyRead()),this,SLOT(readyReadData()));
 
   QTimer *timer=new QTimer(this);
   QObject::connect(timer,SIGNAL(timeout()),this,SLOT(queryDelayData()));
@@ -99,7 +102,7 @@ bool AirTools::connect()
     snprintf(buffer,6,"%c%c%c%c%c",0xFB,0xFF&airtools_unit_address,
 	    0x00,0x02,0x10);
     ApplyChecksum(buffer,5);
-    airtools_tty->writeBlock(buffer,6);
+    airtools_tty->write(buffer,6);
     airtools_stats_requested=true;
     printf("AirTools 6100 Driver\n");
   }
@@ -146,18 +149,18 @@ void AirTools::queryDelayData()
   sprintf(buffer,"%c%c%c%c%c",0xFB,0xFF&airtools_unit_address,
 	  0x00,0x02,0x11);
   ApplyChecksum(buffer,5);
-  airtools_tty->writeBlock(buffer,6);
+  airtools_tty->write(buffer,6);
 }
 
 
-void AirTools::readyReadData(int fd)
+void AirTools::readyReadData()
 {
   char data[1500];
   int n;
 
   int i;
 
-  while((n=airtools_tty->readBlock(data,1500))>0) {
+  while((n=airtools_tty->read(data,1500))>0) {
     for(i=0;i<n;i++) {
       //      printf("data[%d]: 0x%02X\n",i,0xFF&data[i]);
       switch(airtools_msg_istate) {
@@ -324,7 +327,7 @@ void AirTools::SendCommand(unsigned mask)
   snprintf(buffer,10,"%c%c%c%c%c%c",0xFB,0xFF&airtools_unit_address,
 	  0x00,0x03,0x90,0xFF&mask);
   ApplyChecksum(buffer,6);
-  airtools_tty->writeBlock(buffer,7);
+  airtools_tty->write(buffer,7);
 }
 
 

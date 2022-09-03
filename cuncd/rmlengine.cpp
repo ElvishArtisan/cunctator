@@ -2,7 +2,7 @@
 //
 // An RML control engine
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -20,8 +20,8 @@
 
 #include "rmlengine.h"
 
-RmlEngine::RmlEngine(Profile *p, int id,QObject *parent,const char *name)
-  : QObject(parent,name)
+RmlEngine::RmlEngine(Profile *p, int id,QObject *parent)
+  : QObject(parent)
 {
   rml_delay_state=Cunctator::StateUnknown;
   rml_delay_length=-1;
@@ -53,8 +53,7 @@ RmlEngine::RmlEngine(Profile *p, int id,QObject *parent,const char *name)
   //
   // Send Socket
   //
-  rml_socket=new QSocketDevice(QSocketDevice::Datagram);
-  rml_socket->setBlocking(false);
+  rml_socket=new QUdpSocket(this);
 }
 
 
@@ -70,9 +69,9 @@ void RmlEngine::sendDelayLength()
 
   for(unsigned i=0;i<rml_on_delay_change_addresses.size();i++) {
     cmd=ResolveCommand(rml_on_delay_change_commands[i]);
-    rml_socket->writeBlock(cmd,cmd.length(),
-			   rml_on_delay_change_addresses[i],
-			   rml_on_delay_change_ports[i]);
+    rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
+			      rml_on_delay_change_addresses[i],
+			      rml_on_delay_change_ports[i]);
   }
 }
 
@@ -85,7 +84,7 @@ void RmlEngine::sendDelayState(int n,Cunctator::DelayState state,int len)
     rml_delay_length=len;
     for(unsigned i=0;i<rml_on_delay_change_addresses.size();i++) {
       cmd=ResolveCommand(rml_on_delay_change_commands[i]);
-      rml_socket->writeBlock(cmd,cmd.length(),
+      rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
 			     rml_on_delay_change_addresses[i],
 			     rml_on_delay_change_ports[i]);
     }
@@ -93,23 +92,23 @@ void RmlEngine::sendDelayState(int n,Cunctator::DelayState state,int len)
   if((state==Cunctator::StateBypassed)&&(state!=rml_delay_state)) {
     for(unsigned i=0;i<rml_on_bypassed_addresses.size();i++) {
       cmd=ResolveCommand(rml_on_bypassed_commands[i]);
-      rml_socket->writeBlock(cmd,cmd.length(),
-			     rml_on_bypassed_addresses[i],
-			     rml_on_bypassed_ports[i]);
+      rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
+				rml_on_bypassed_addresses[i],
+				rml_on_bypassed_ports[i]);
     }
   }
   if((state==Cunctator::StateEntering)&&(state!=rml_delay_state)) {
     for(unsigned i=0;i<rml_on_entering_addresses.size();i++) {
       cmd=ResolveCommand(rml_on_entering_commands[i]);
-      rml_socket->writeBlock(cmd,cmd.length(),
-			     rml_on_entering_addresses[i],
-			     rml_on_entering_ports[i]);
+      rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
+				rml_on_entering_addresses[i],
+				rml_on_entering_ports[i]);
     }
   }
   if((state==Cunctator::StateEntered)&&(state!=rml_delay_state)) {
     for(unsigned i=0;i<rml_on_entering_addresses.size();i++) {
       cmd=ResolveCommand(rml_on_entered_commands[i]);
-      rml_socket->writeBlock(cmd,cmd.length(),
+      rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
 			     rml_on_entered_addresses[i],
 			     rml_on_entered_ports[i]);
     }
@@ -117,7 +116,7 @@ void RmlEngine::sendDelayState(int n,Cunctator::DelayState state,int len)
   if((state==Cunctator::StateExiting)&&(state!=rml_delay_state)) {
     for(unsigned i=0;i<rml_on_exiting_addresses.size();i++) {
       cmd=ResolveCommand(rml_on_exiting_commands[i]);
-      rml_socket->writeBlock(cmd,cmd.length(),
+      rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
 			     rml_on_exiting_addresses[i],
 			     rml_on_exiting_ports[i]);
     }
@@ -125,9 +124,9 @@ void RmlEngine::sendDelayState(int n,Cunctator::DelayState state,int len)
   if((state==Cunctator::StateExited)&&(state!=rml_delay_state)) {
     for(unsigned i=0;i<rml_on_exited_addresses.size();i++) {
       cmd=ResolveCommand(rml_on_exited_commands[i]);
-      rml_socket->writeBlock(cmd,cmd.length(),
-			     rml_on_exited_addresses[i],
-			     rml_on_exited_ports[i]);
+      rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
+				rml_on_exited_addresses[i],
+				rml_on_exited_ports[i]);
     }
   }
   rml_delay_state=state;
@@ -140,9 +139,9 @@ void RmlEngine::sendDelayDumped(int n)
 
   for(unsigned i=0;i<rml_on_dump_addresses.size();i++) {
     cmd=ResolveCommand(rml_on_dump_commands[i]);
-    rml_socket->writeBlock(cmd,cmd.length(),
-			   rml_on_dump_addresses[i],
-			   rml_on_dump_ports[i]);
+    rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
+			      rml_on_dump_addresses[i],
+			      rml_on_dump_ports[i]);
   }
 }
 
@@ -157,7 +156,7 @@ QString RmlEngine::ResolveCommand(const QString &cmd) const
 
 void RmlEngine::LoadStack(Profile *p,int id,const QString &tag,
 			  std::vector<QHostAddress> *addrs,
-			  std::vector<Q_UINT16> *ports,
+			  std::vector<uint16_t> *ports,
 			  std::vector<QString> *cmds)
 {
   QHostAddress addr;
@@ -165,14 +164,14 @@ void RmlEngine::LoadStack(Profile *p,int id,const QString &tag,
   QString section=QString().sprintf("Delay%d",id);
   QString label=tag+QString().sprintf("Address%d",count);
 
-  addr.setAddress(p->stringValue(section,label,"0.0.0.0"));
-  while(!addr.isNull()) {
+  bool ok=addr.setAddress(p->stringValue(section,label));
+  while(ok) {
     addrs->push_back(addr);
     cmds->push_back(p->stringValue(section,
 				   tag+QString().sprintf("Command%d",count)));
     ports->push_back(p->intValue(section,
 				 tag+QString().sprintf("Port%d",count)));
     label=tag+QString().sprintf("Address%d",++count);
-    addr.setAddress(p->stringValue(section,label,"0.0.0.0"));
+    ok=addr.setAddress(p->stringValue(section,label));
   }
 }

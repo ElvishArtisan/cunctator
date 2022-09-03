@@ -8,7 +8,6 @@ X11 Window System
 Needed for building on Un*x-type systems, including Linux.  Virtually 
 all Linux distros should include this.
 
-Qt Toolkit, v3.2 or better
-Most modern Linux distros include this.  It's typically installed as part
-of the KDE Desktop Environment, although KDE is by no means required.
-It can also be downloaded directly from TrollTech (ftp://ftp.trolltech.com/).
+Qt5 Toolkit, v5.9 or better
+Most modern Linux distros include this. It can also be downloaded directly
+at https://www.qt.io/.

@@ -2,7 +2,7 @@
 //
 // JACK-based audio delay.
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -138,8 +138,8 @@ void JackShutdownCB(void *arg)
 }
 
 
-JackDelay::JackDelay(Profile *p,int id,bool debug,QObject *parent,const char *name)
-  : Delay(p,id,debug,parent,name)
+JackDelay::JackDelay(Profile *p,int id,bool debug,QObject *parent)
+  : Delay(p,id,debug,parent)
 {
   jd_client=NULL;
   jd_state=Cunctator::StateExited;
@@ -238,7 +238,8 @@ bool JackDelay::connect()
   // Initialize JACK
   //
   if((jd_client=
-      jack_client_open(QString().sprintf("%s_%u",JACKDELAY_CLIENT_NAME,id()+1),
+      jack_client_open(QString().sprintf("%s_%u",JACKDELAY_CLIENT_NAME,id()+1).
+		       toUtf8(),
 		       JackNullOption,&status,0))==NULL) {
     if((status&JackServerFailed)!=0) {
       syslog(LOG_ERR,"Unable to connect to the JACK server");
@@ -275,7 +276,8 @@ bool JackDelay::connect()
   //
   jack_port_t *port=NULL;
   for(unsigned i=0;i<jd_audio_channels;i++) {
-    if((port=jack_port_register(jd_client,QString().sprintf("input_%u",i+1),
+    if((port=jack_port_register(jd_client,
+				QString().sprintf("input_%u",i+1).toUtf8(),
 				JACK_DEFAULT_AUDIO_TYPE,
 				JackPortIsInput,0))==NULL) {
       syslog(LOG_ERR,"no more JACK ports available");
@@ -286,7 +288,8 @@ bool JackDelay::connect()
     }
     jd_input_ports.push_back(port);
 
-    if((port=jack_port_register(jd_client,QString().sprintf("output_%u",i+1),
+    if((port=jack_port_register(jd_client,
+				QString().sprintf("output_%u",i+1).toUtf8(),
 				JACK_DEFAULT_AUDIO_TYPE,
 				JackPortIsOutput,0))==NULL) {
       syslog(LOG_ERR,"no more JACK ports available");
@@ -313,12 +316,13 @@ bool JackDelay::connect()
   // Connect Ports
   //
   for(unsigned i=0;i<jd_input_names.size();i++) {
-    if((err=jack_connect(jd_client,jd_input_names[i],jd_output_names[i]))!=0) {
+    if((err=jack_connect(jd_client,jd_input_names[i].toUtf8(),
+			 jd_output_names[i].toUtf8()))!=0) {
       if(err!=EEXIST) {
 	syslog(LOG_WARNING,
-	    "unable to connect source port \"%s\" to destination port \"%s\"",
-	       (const char *)jd_input_names[i],
-	       (const char *)jd_output_names[i]);
+	      "unable to connect source port \"%s\" to destination port \"%s\"",
+	      jd_input_names[i].toUtf8().constData(),
+	      jd_output_names[i].toUtf8().constData());
       }
     }
   }

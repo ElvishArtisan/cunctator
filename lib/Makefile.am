@@ -4,7 +4,7 @@
 ##
 ## Use automake to process this into a Makefile.in
 ##
-##   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+##   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 ##
 ##   This program is free software; you can redistribute it and/or modify
 ##   it under the terms of the GNU General Public License version 2 as
@@ -20,26 +20,25 @@
 ##   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ##
 
-AM_CPPFLAGS = -Wall @QT_CXXFLAGS@
-MOC = @QT_MOC@
+AM_CPPFLAGS = -Wall -Wno-strict-aliasing -std=c++11 -fPIC @QT5_GUI_CFLAGS@
+MOC = @QT5_MOC@
 
 # The dependency for qt's Meta Object Compiler (moc)
 moc_%.cpp:	%.h
-	$(MOC) $< -o $@
+	@MOC@ $< -o $@
 
 instdir = @LOCAL_PREFIX@/lib
 
 lib_LTLIBRARIES = libcunc.la
 dist_libcunc_la_SOURCES = cmdswitch.cpp cmdswitch.h\
                           profile.cpp profile.h\
-                          profileline.cpp profileline.h\
-                          profilesection.cpp profilesection.h\
                           pushbutton.cpp pushbutton.h\
                           ringbuffer.cpp ringbuffer.h\
                           ttydevice.cpp ttydevice.h\
                           cunc.h
 
-nodist_libcunc_la_SOURCES = moc_pushbutton.cpp
+nodist_libcunc_la_SOURCES = moc_pushbutton.cpp\
+                            moc_ttydevice.cpp
 
 libcunc_la_LDFLAGS = -release $(VERSION)
 

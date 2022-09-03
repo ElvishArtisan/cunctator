@@ -2,7 +2,7 @@
 //
 // A ringbuffer class for PCM audio
 //
-// (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+// (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Library General Public License 
@@ -17,8 +17,6 @@
 //   License along with this program; if not, write to the Free Software
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//
-
 
 #ifndef RINGBUFFER_H
 #define RINGBUFFER_H

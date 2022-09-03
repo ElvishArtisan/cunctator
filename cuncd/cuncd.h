@@ -23,13 +23,13 @@
 
 #include <vector>
 
-#include <qsocketdevice.h>
-#include <qobject.h>
+#include <QObject>
+#include <QTcpServer>
+#include <QUdpSocket>
 
 #include "delay.h"
 #include "cuncconfig.h"
 #include "connection.h"
-#include "cuncsocket.h"
 
 #define CUNCD_USAGE "[-d]\n\n-d\n     Stay in the foreground and print debugging messages."
 #define CUNCD_PID_FILE "/var/run/cuncd.pid"
@@ -38,22 +38,22 @@ class MainObject : public QObject
 {
   Q_OBJECT
  public:
-  MainObject(QObject *parent=0,const char *name=0);
+  MainObject(QObject *parent=0);
   ~MainObject();
 
  private slots:
-  void newConnectionData(int fd);
+  void newConnectionData();
   void garbageCollectionData();
   void delayQuantityRequestedData(int id);
-  void rmlReceivedData(int fd);
+  void rmlReceivedData();
 
  private:
   Connection *GetConnection(int id) const;
   void ProcessRml(const QString &cmd);
   CuncConfig *cuncd_config;
   std::vector<Connection *> cuncd_connections;
-  CuncSocket *cuncd_server;
-  QSocketDevice *cuncd_rml_socket;
+  QTcpServer *cuncd_server;
+  QUdpSocket *cuncd_rml_socket;
   bool debug;
 };
 

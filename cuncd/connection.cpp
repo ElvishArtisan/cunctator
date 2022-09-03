@@ -2,7 +2,7 @@
 //
 // A container class for cuncd(8) connections.
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -24,12 +24,11 @@
 
 #include "connection.h"
 
-Connection::Connection(int fd,QObject *parent,const char *name)
-  : QObject(parent,name)
+Connection::Connection(QTcpSocket *sock,QObject *parent)
+  : QObject(parent)
 {
-  conn_socket=new QSocket(this);
+  conn_socket=sock;
   connect(conn_socket,SIGNAL(readyRead()),this,SLOT(readyReadData()));
-  conn_socket->setSocket(fd);
 }
 
 
@@ -41,48 +40,48 @@ Connection::~Connection()
 
 int Connection::id() const
 {
-  return conn_socket->socket();
+  return conn_socket->socketDescriptor();
 }
 
 
 bool Connection::isZombie() const
 {
-  return conn_socket->state()!=QSocket::Connected;
+  return conn_socket->state()!=QAbstractSocket::ConnectedState;
 }
 
 
 void Connection::sendDelayQuantity(int n) const
 {
   QString msg=QString().sprintf("DQ %d!",n);
-  conn_socket->writeBlock(msg,msg.length());
+  conn_socket->write(msg.toUtf8(),msg.toUtf8().length());
 }
 
 
 void Connection::sendDelayModel(int id,int n,Cunctator::DelayType type,
 				const QString &desc)
 {
-  if((id>=0)&&(id!=conn_socket->socket())) {
+  if((id>=0)&&(id!=conn_socket->socketDescriptor())) {
     return;
   }
-  QString msg=QString().sprintf("DM %d %d %s!",n,type,(const char *)desc);
-  conn_socket->writeBlock(msg,msg.length());
+  QString msg=QString::asprintf("DM %d %d %s!",n,type,desc.toUtf8().constData());
+  conn_socket->write(msg.toUtf8(),msg.toUtf8().length());
 }
 
 
 void Connection::sendDelayState(int id,int n,Cunctator::DelayState state,int len)
 {
-  if((id>=0)&&(id!=conn_socket->socket())) {
+  if((id>=0)&&(id!=conn_socket->socketDescriptor())) {
     return;
   }
   QString msg=QString().sprintf("DS %d %d %d!",n,state,len);
-  conn_socket->writeBlock(msg,msg.length());
+  conn_socket->write(msg.toUtf8(),msg.toUtf8().length());
 }
 
 
 void Connection::sendDelayDumped(int n)
 {
   QString msg=QString().sprintf("DP %d!",n);
-  conn_socket->writeBlock(msg,msg.length());
+  conn_socket->write(msg.toUtf8(),msg.toUtf8().length());
 }
 
 
@@ -91,8 +90,8 @@ void Connection::readyReadData()
   char data[1500];
   int n;
 
-  while((conn_socket->state()==QSocket::Connected)&&
-	((n=conn_socket->readBlock(data,1500))>0)) {
+  while((conn_socket->state()==QAbstractSocket::ConnectedState)&&
+	((n=conn_socket->read(data,1500))>0)) {
     for(int i=0;i<n;i++) {
       if(isprint(data[i])) {
 	if(data[i]=='!') {
@@ -110,7 +109,7 @@ void Connection::readyReadData()
 
 void Connection::ProcessCommand(const QString &cmd)
 {
-  QStringList args=args.split(" ",cmd);
+  QStringList args=cmd.split(" ",QString::SkipEmptyParts);
   if(args.size()<1) {
     return;
   }
@@ -120,18 +119,18 @@ void Connection::ProcessCommand(const QString &cmd)
   }
 
   if(args[0]=="DQ") {  // Delay Quantity
-    emit delayQuantityRequested(conn_socket->socket());
+    emit delayQuantityRequested(conn_socket->socketDescriptor());
   }
 
   if(args[0]=="DM") {  // Delay Model
     if(args.size()==2) {
-      emit delayModelRequested(conn_socket->socket(),args[1].toInt());
+      emit delayModelRequested(conn_socket->socketDescriptor(),args[1].toInt());
     }
   }
 
   if(args[0]=="DS") {  // Delay State
     if(args.size()==2) {
-      emit delayStateRequested(conn_socket->socket(),args[1].toInt());
+      emit delayStateRequested(conn_socket->socketDescriptor(),args[1].toInt());
     }
   }
 

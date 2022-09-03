@@ -2,7 +2,7 @@
 //
 // Cunctator delay control daemon.
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -31,10 +31,10 @@
 #include <sys/wait.h>
 #include <syslog.h>
 
-#include <qapplication.h>
-#include <qtimer.h>
-#include <qsocketnotifier.h>
-#include <qstringlist.h>
+#include <QCoreApplication>
+#include <QSocketNotifier>
+#include <QStringList>
+#include <QTimer>
 
 #include <cmdswitch.h>
 
@@ -66,8 +66,8 @@ void SigHandler(int signo)
 }
 
 
-MainObject::MainObject(QObject *parent,const char *name)
-  :QObject(parent,name)
+MainObject::MainObject(QObject *parent)
+  :QObject(parent)
 {
   debug=false;
   FILE *f=NULL;
@@ -75,8 +75,7 @@ MainObject::MainObject(QObject *parent,const char *name)
   //
   // Read Command Options
   //
-  CmdSwitch *cmd=
-    new CmdSwitch(qApp->argc(),qApp->argv(),"cuncd",CUNCD_USAGE);
+  CmdSwitch *cmd=new CmdSwitch("cuncd",CUNCD_USAGE);
   for(unsigned i=0;i<cmd->keys();i++) {
     if(cmd->key(i)=="-d") {
       debug=true;
@@ -84,7 +83,7 @@ MainObject::MainObject(QObject *parent,const char *name)
     }
     if(!cmd->processed(i)) {
       fprintf(stderr,"cuncd: unrecognized option \"%s\"\n",
-	      (const char *)cmd->key(i));
+	      cmd->key(i).toUtf8().constData());
       exit(256);
     }
   }
@@ -101,7 +100,7 @@ MainObject::MainObject(QObject *parent,const char *name)
   //
   cuncd_config=new CuncConfig(CUNC_CONF_FILE,debug);
   cuncd_config->load();
-  //cuncd_config->dumpConfig(stdout);
+  cuncd_config->dumpConfig(stdout);
 
   //
   // Detach
@@ -131,7 +130,7 @@ MainObject::MainObject(QObject *parent,const char *name)
   for(unsigned i=0;i<cuncd_config->delays();i++) {
     if(!cuncd_config->delay(i)->connect()) {
       syslog(LOG_ERR,"unable to connect to \"%s\" in configuration [Delay%u]",
-	     (const char *)cuncd_config->delay(i)->description(),i+1);
+	     cuncd_config->delay(i)->description().toUtf8().constData(),i+1);
       exit(256);
     }
   }
@@ -139,9 +138,13 @@ MainObject::MainObject(QObject *parent,const char *name)
   //
   // Initialize Front-End
   //
-  cuncd_server=new CuncSocket(cuncd_config->tcpPort(),0,this);
-  connect(cuncd_server,SIGNAL(connection(int)),
-	  this,SLOT(newConnectionData(int)));
+  cuncd_server=new QTcpServer(this);
+  if(!cuncd_server->listen(QHostAddress::Any,cuncd_config->tcpPort())) {
+    syslog(LOG_ERR,"unable to listen on port %d",cuncd_config->tcpPort());
+    exit(1);
+  }
+  connect(cuncd_server,SIGNAL(newConnection()),
+	  this,SLOT(newConnectionData()));
   QTimer *timer=new QTimer(this);
   connect(timer,SIGNAL(timeout()),this,SLOT(garbageCollectionData()));
   timer->start(1000);
@@ -149,12 +152,10 @@ MainObject::MainObject(QObject *parent,const char *name)
   //
   // Initialize RML Interface
   //
-  cuncd_rml_socket=new QSocketDevice(QSocketDevice::Datagram);
-  cuncd_rml_socket->setBlocking(false);
+  cuncd_rml_socket=new QUdpSocket(this);
   cuncd_rml_socket->bind(QHostAddress(),CUNC_TCP_PORT);
-  QSocketNotifier *notify=
-    new QSocketNotifier(cuncd_rml_socket->socket(),QSocketNotifier::Read,this);
-  connect(notify,SIGNAL(activated(int)),this,SLOT(rmlReceivedData(int)));
+  connect(cuncd_rml_socket,SIGNAL(readyRead()),
+	  this,SLOT(rmlReceivedData()));
 }
 
 
@@ -165,9 +166,10 @@ MainObject::~MainObject()
 }
 
 
-void MainObject::newConnectionData(int fd)
+void MainObject::newConnectionData()
 {
-  cuncd_connections.push_back(new Connection(fd,this));
+  cuncd_connections.
+    push_back(new Connection(cuncd_server->nextPendingConnection(),this));
   Connection *conn=cuncd_connections.back();
   connect(conn,SIGNAL(delayQuantityRequested(int)),
 	  this,SLOT(delayQuantityRequestedData(int)));
@@ -210,12 +212,12 @@ void MainObject::delayQuantityRequestedData(int id)
 }
 
 
-void MainObject::rmlReceivedData(int fd)
+void MainObject::rmlReceivedData()
 {
   int n;
   char data[1500];
 
-  while((n=cuncd_rml_socket->readBlock(data,1500))>0) {
+  while((n=cuncd_rml_socket->readDatagram(data,1500))>0) {
     int next=0;
     for(int i=0;i<n;i++) {
       if(data[i]=='!') {
@@ -247,8 +249,7 @@ void MainObject::ProcessRml(const QString &cmd)
   bool ok=false;
   QString str;
   
-  QStringList args=args.split(" ",cmd);
-
+  QStringList args=cmd.split(" ",QString::SkipEmptyParts);
   if(args[0]=="GO") {
     if((args.size()<5)||(args.size()>6)) {
       return;
@@ -289,7 +290,7 @@ void MainObject::ProcessRml(const QString &cmd)
 
 int main(int argc,char *argv[])
 {
-  QApplication a(argc,argv,false);
-  new MainObject(NULL,"main");
+  QCoreApplication a(argc,argv);
+  new MainObject();
   return a.exec();
 }

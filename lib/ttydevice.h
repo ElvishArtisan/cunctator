@@ -2,7 +2,8 @@
 //
 //   A Qt driver for serial ports.
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2010-2022 Fred Gleason <fredg@paravelsystems.com>
+//       All Rights Reserved
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Library General Public License 
@@ -17,266 +18,83 @@
 //   License along with this program; if not, write to the Free Software
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//
 
 #ifndef TTYDEVICE_H
 #define TTYDEVICE_H
 
-#define WIN32_BUFFER_SIZE 130
-
-#ifdef WIN32
-#include <windows.h>
-#else
 #include <termios.h>
 #include <unistd.h>
-#endif  // WIN32
-#include <qiodevice.h>
-#include <qstring.h>
 
+#include <queue>
 
-/**
- * @short A QIODevice-compatible class for serial ports.
- * @author Fred Gleason <fredg@paravelsystems.com>
- *
- * This class implements an QIODevice-compatible class for dealing 
- * with serial ports.
- **/
+#include <QIODevice>
+#include <QSocketNotifier>
+#include <QTimer>
 
 class TTYDevice : public QIODevice
 {
+  Q_OBJECT;
   public:
-   enum Parity {None=0,Even=1,Odd=2};
-
-  /**
-   * Create an TTYDevice object
-   **/
-  TTYDevice();
-
-  /**
-   * Destroy an TTYDevice object
-   **/
+  enum Parity {None=0,Even=1,Odd=2};
+  enum FlowControl {FlowNone=0,FlowRtsCts=1,FlowXonXoff=2};
+  TTYDevice(QObject *parent=0);
   ~TTYDevice();
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  bool open(int mode);
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
+  QString name() const;
+  void setName(const QString &str);
+  bool open(QIODevice::OpenMode mode);
   void close();
-  int socket() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  void flush();
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  Q_LONG readBlock(char *data,Q_ULONG maxlen);
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  Q_LONG writeBlock(const char *data,Q_ULONG len);
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  int getch();
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  int putch(int ch);
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  int ungetch(int ch);
-
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  QIODevice::Offset size() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  int flags() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  int mode() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  int state() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  bool isDirectAccess() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  bool isSequentialAccess() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  bool isCombinedAccess() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  bool isBuffered() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  bool isRaw() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  bool isSynchronous() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  bool isAsynchronous() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  bool isTranslated() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
+  int socketDescriptor() const;
+  qint64 read(char *data,qint64 maxlen);
+  QByteArray read(qint64 maxlen);
+  QByteArray readAll();
+  qint64 readBlock(char *data,qint64 maxlen);
+  qint64 write(const char *data,qint64 len);
+  qint64 write(const QByteArray &array);
+  bool getChar(char *ch);
+  bool putChar(char ch);
+  qint64 size() const;
+  qint64 bytesAvailable() const;
+  qint64 bytesToWrite() const;
+  bool isSequential() const;
   bool isReadable() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
   bool isWritable() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  bool isReadWrite() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  bool isInactive() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
   bool isOpen() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  int status() const;
-
-  /**
-   * This method is reimplemented from the QIODevice class, the API is
-   * unaffected.
-   **/
-  void resetStatus();
-
-  /**
-   * Set the name of the tty device to use.
-   * @param name Name of tty device to use.
-   **/
-  void setName(QString name);
-
-  /**
-   * Returns the speed of the tty device, in bits per second.
-   **/
+  QString deviceName() const;
+  void setDeviceName(QString name);
   int speed() const;
-
-  /**
-   * Set the speed of the tty device.
-   * @param speed Speed of the tty device, in bits per second.
-   **/
   void setSpeed(int speed);
-
-  /**
-   * Returns the word length of the tty device.
-   **/
   int wordLength() const;
-
-  /**
-   * Set the word length of the tty device.
-   * @param length Word length in bits.  Legal values are 5, 6, 7 or 8.
-   **/
   void setWordLength(int length);
-
-  /**
-   * Returns the parity coding of the tty device.
-   **/
   TTYDevice::Parity parity() const;
-
-  /**
-   * Set the parity coding of the tty device.
-   * @param parity Parity coding.
-   **/
   void setParity(Parity);
+  TTYDevice::FlowControl flowControl() const;
+  void setFlowControl(FlowControl ctrl);
+  int fileDescriptor() const;
+
+ signals:
+  void readChannelFinished();
+
+ protected:
+  qint64 readData(char *data,qint64 maxlen);
+  qint64 writeData(const char *data,qint64 len);
+
+ private slots:
+  void readTtyData(int sock);
+  void writeTtyData();
 
  private:
-  void Init();
   Parity tty_parity;
+  FlowControl tty_flow_control;
   QString tty_name;
   bool tty_open;
   int tty_flags;
-  int tty_mode;
-  int tty_status;
-#ifdef WIN32
-  HANDLE tty_fd;
-  int tty_speed;
-  int tty_length;
-#else
+  QIODevice::OpenMode tty_mode;
   int tty_fd;
   speed_t tty_speed;
   tcflag_t tty_length;
-#endif  // WIN32
+  std::queue<char> tty_write_queue;
+  QTimer *tty_write_timer;
+  QSocketNotifier *tty_notifier;
 };
 
 

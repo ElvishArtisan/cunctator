@@ -2,7 +2,7 @@
 //
 // Abstract base class for Cunctator delay devices.
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -20,8 +20,8 @@
 
 #include "delay.h"
 
-Delay::Delay(Profile *p,int id,bool debug,QObject *parent,const char *name)
-  : QObject(parent,name)
+Delay::Delay(Profile *p,int id,bool debug,QObject *parent)
+  : QObject(parent)
 {
   delay_id=id;
   delay_debug=debug;

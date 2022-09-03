@@ -2,7 +2,7 @@
 //
 // JACK-based audio delay.
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -44,7 +44,7 @@ class JackDelay : public Delay
 {
  Q_OBJECT
  public:
-  JackDelay(Profile *p,int id,bool debug,QObject *parent=0,const char *name=0);
+  JackDelay(Profile *p,int id,bool debug,QObject *parent=0);
   ~JackDelay();
    Cunctator::DelayType type();
    QString description();

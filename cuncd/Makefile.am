@@ -2,7 +2,7 @@
 ##
 ## cuncd/ Makefile.am for Cunctator
 ##
-## (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+## (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 ##
 ## Use automake to process this into a Makefile.in
 ##
@@ -20,13 +20,13 @@
 ##   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ##
 
-AM_CPPFLAGS = -Wall -DPREFIX=\"$(prefix)\" -DQTDIR=\"@QT_DIR@\" @QT_CXXFLAGS@ -I$(top_srcdir)/lib
-LIBS = @QT_LIBS@ -L$(top_srcdir)/lib
-MOC = @QT_MOC@
+AM_CPPFLAGS = -Wall -DPREFIX=\"$(prefix)\" -Wno-strict-aliasing -std=c++11 -fPIC @QT5_GUI_CFLAGS@ -I$(top_srcdir)/lib
+LIBS = -L$(top_srcdir)/lib
+MOC = @QT5_MOC@
 
 # QT's Meta Object Compiler (moc)
 moc_%.cpp:	%.h
-	$(MOC) $< -o $@
+	@MOC@ $< -o $@
 
 sbin_PROGRAMS = cuncd
 dist_cuncd_SOURCES = airtools.cpp airtools.h\
@@ -34,7 +34,6 @@ dist_cuncd_SOURCES = airtools.cpp airtools.h\
                      connection.cpp connection.h\
                      cuncd.cpp cuncd.h\
                      cuncconfig.cpp cuncconfig.h\
-                     cuncsocket.cpp cuncsocket.h\
                      delay.cpp delay.h\
                      dummy.cpp dummy.h\
                      jackdelay.cpp jackdelay.h\
@@ -47,14 +46,13 @@ nodist_cuncd_SOURCES = moc_airtools.cpp\
                        moc_connection.cpp\
                        moc_cuncd.cpp\
                        moc_cuncconfig.cpp\
-                       moc_cuncsocket.cpp\
                        moc_delay.cpp\
                        moc_dummy.cpp\
                        moc_jackdelay.cpp\
                        moc_rmlengine.cpp\
                        moc_udpqueue.cpp
 
-cuncd_LDADD = @QT_LIBS@ @CUNC_LIBS@
+cuncd_LDADD = @CUNC_LIBS@ @QT5_GUI_LIBS@
 
 EXTRA_DIST = cuncd.pro
 

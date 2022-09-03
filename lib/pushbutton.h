@@ -2,7 +2,7 @@
 //
 //   Flashing button widget.
 //
-//   (C) Copyright 2002-2003,2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2002-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Library General Public License 
@@ -17,32 +17,30 @@
 //   License along with this program; if not, write to the Free Software
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//
 
 #ifndef PUSHBUTTON_H
 #define PUSHBUTTON_H
 
-#include <qwidget.h>
-#include <qpushbutton.h>
-#include <qpixmap.h>
-#include <qcolor.h>
+#include <QColor>
+#include <QPixmap>
+#include <QPushButton>
+#include <QWidget>
 
 /*
  * Widget Defaults
  */
 #define PUSHBUTTON_DEFAULT_FLASH_PERIOD 300
-#define PUSHBUTTON_DEFAULT_FLASH_COLOR blue
-
+#define PUSHBUTTON_DEFAULT_FLASH_COLOR Qt::blue
 
 class PushButton : public QPushButton
 {
   Q_OBJECT
  public:
   enum ClockSource {InternalClock=0,ExternalClock=1};
-  PushButton(QWidget *parent,const char *name=0);
-  PushButton(const QString &text,QWidget *parent,const char *name=0);
-  PushButton(const QIconSet &icon,const QString &text,
-	      QWidget *parent,const char *name=0);
+  PushButton(QWidget *parent);
+  PushButton(const QString &text,QWidget *parent);
+  //  PushButton(const QIconSet &icon,const QString &text,
+  //	      QWidget *parent,const char *name=0);
   QColor flashColor() const;
   void setFlashColor(QColor color);
   int flashPeriod() const;

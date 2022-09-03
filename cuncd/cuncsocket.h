@@ -21,10 +21,9 @@
 #ifndef CUNCSOCKET_H
 #define CUNCSOCKET_H
 
-#include <qobject.h>
-#include <qstring.h>
-#include <qserversocket.h>
-#include <qhostaddress.h>
+#include <QObject>
+//#include <QServerSocket>
+#include <QHostAddress>
 
 class CuncSocket : public QServerSocket
 {

@@ -2,7 +2,7 @@
 //
 // Dummy delay driver for Cunctator
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -20,13 +20,15 @@
 
 #include "dummy.h"
 
-Dummy::Dummy(Profile *p,int n,bool debug,QObject *parent,const char *name)
-  : Delay(p,n,debug,parent,name)
+Dummy::Dummy(Profile *p,int n,bool debug,QObject *parent)
+  : Delay(p,n,debug,parent)
 {
   dummy_state=Cunctator::StateBypassed;
   dummy_delay_length=0;
 
   dummy_build_timer=new QTimer(this);
+  dummy_build_timer->setSingleShot(true);
+
   QObject::connect(dummy_build_timer,SIGNAL(timeout()),
 		   this,SLOT(buildTimerData()));
 }
@@ -86,7 +88,7 @@ void Dummy::enter()
 
   if(dummy_state!=Cunctator::StateEntering) {
     dummy_state=Cunctator::StateEntering;
-    dummy_build_timer->start(500,true);
+    dummy_build_timer->start(500);
     emit delayStateChanged(id(),dummy_state,dummy_delay_length);
   }
 }
@@ -98,7 +100,7 @@ void Dummy::exit()
 
   if((dummy_state!=Cunctator::StateExiting)&&(dummy_delay_length>0)) {
     dummy_state=Cunctator::StateExiting;
-    dummy_build_timer->start(500,true);
+    dummy_build_timer->start(500);
     emit delayStateChanged(id(),dummy_state,dummy_delay_length);
   }
 }
@@ -115,7 +117,7 @@ void Dummy::dump()
   switch(dummy_state) {
   case Cunctator::StateEntering:
   case Cunctator::StateEntered:
-    dummy_build_timer->start(500,true);
+    dummy_build_timer->start(500);
     break;
 
   case Cunctator::StateUnknown:
@@ -136,7 +138,7 @@ void Dummy::buildTimerData()
     }
     else {
       dummy_delay_length+=DUMMY_DELAY_INCREMENT;
-      dummy_build_timer->start(500,true);
+      dummy_build_timer->start(500);
     }
     break;
 
@@ -146,7 +148,7 @@ void Dummy::buildTimerData()
     }
     else {
       dummy_delay_length-=DUMMY_DELAY_INCREMENT;
-      dummy_build_timer->start(500,true);
+      dummy_build_timer->start(500);
     }
     break;
 

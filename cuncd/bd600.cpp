@@ -2,7 +2,7 @@
 //
 // Bd600 delay driver for Cunctator
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -22,8 +22,8 @@
 
 #include "bd600.h"
 
-Bd600::Bd600(Profile *p,int n,bool debug,QObject *parent,const char *name)
-  : Delay(p,n,debug,parent,name)
+Bd600::Bd600(Profile *p,int n,bool debug,QObject *parent)
+  : Delay(p,n,debug,parent)
 {
   bd600_state=Cunctator::StateBypassed;
   bd600_delay_length=0;
@@ -40,9 +40,10 @@ Bd600::Bd600(Profile *p,int n,bool debug,QObject *parent,const char *name)
   // Watchdog
   //
   bd600_watchdog_timer=new QTimer(this);
+  bd600_watchdog_timer->setSingleShot(true);
   QObject::connect(bd600_watchdog_timer,SIGNAL(timeout()),
 		   this,SLOT(watchdogData()));
-  bd600_watchdog_timer->start(BD600_WATCHDOG_INCREMENT,true);
+  bd600_watchdog_timer->start(BD600_WATCHDOG_INCREMENT);
 }
 
 
@@ -77,44 +78,40 @@ int Bd600::delayLength()
 
 bool Bd600::connect()
 {
-  if(!bd600_tty->open(IO_ReadWrite)) {
+  if(!bd600_tty->open(QIODevice::ReadWrite)) {
     return false;
   }
-  bd600_notify=
-    new QSocketNotifier(bd600_tty->socket(),QSocketNotifier::Read,this);
-  QObject::connect(bd600_notify,SIGNAL(activated(int)),
-		   this,SLOT(readyReadData(int)));
-
-  bd600_tty->writeBlock("T",1);
+  QObject::connect(bd600_tty,SIGNAL(readyRead()),this,SLOT(readyReadData()));
+  bd600_tty->write("T",1);
   return true;
 }
 
 
 void Bd600::bypass()
 {
-  bd600_tty->writeBlock("B",1);
+  bd600_tty->write("B",1);
 }
 
 
 void Bd600::enter()
 {
-  bd600_tty->writeBlock("R",1);
+  bd600_tty->write("R",1);
 }
 
 
 void Bd600::exit()
 {
-  bd600_tty->writeBlock("Z",1);
+  bd600_tty->write("Z",1);
 }
 
 
 void Bd600::dump()
 {
-  bd600_tty->writeBlock("D",1);
+  bd600_tty->write("D",1);
 }
 
 
-void Bd600::readyReadData(int fd)
+void Bd600::readyReadData()
 {
   char data[1500];
   int n;
@@ -134,7 +131,7 @@ void Bd600::readyReadData(int fd)
 	bd600_delay_length=delay_length;
 	emit delayStateChanged(id(),bd600_state,delayLength());
       }
-      bd600_tty->writeBlock("M",1);
+      bd600_tty->write("M",1);
       break;
 
     case 3:   // Operating mode
@@ -169,16 +166,16 @@ void Bd600::readyReadData(int fd)
 	bd600_state=state;
 	emit delayStateChanged(id(),bd600_state,delayLength());
       }
-      bd600_tty->writeBlock("T",1);
+      bd600_tty->write("T",1);
       break;
 
     default:
-      bd600_tty->writeBlock("M",1);
+      bd600_tty->write("M",1);
       break;
     }
     data[n]=0;
   }
-  bd600_watchdog_timer->start(BD600_WATCHDOG_INCREMENT,true);
+  bd600_watchdog_timer->start(BD600_WATCHDOG_INCREMENT);
 }
 
 
@@ -189,6 +186,6 @@ void Bd600::watchdogData()
     bd600_delay_length=0;
     emit delayStateChanged(id(),bd600_state,delayLength());
   }
-  bd600_tty->writeBlock("M",1);
-  bd600_watchdog_timer->start(BD600_WATCHDOG_INCREMENT,true);
+  bd600_tty->write("M",1);
+  bd600_watchdog_timer->start(BD600_WATCHDOG_INCREMENT);
 }

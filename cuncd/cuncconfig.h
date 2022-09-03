@@ -23,8 +23,7 @@
 
 #include <vector>
 
-#include <qobject.h>
-#include <qstring.h>
+#include <QObject>
 
 #include <cunc.h>
 
@@ -36,7 +35,7 @@ class CuncConfig : public QObject
 {
   Q_OBJECT;
  public:
-  CuncConfig(bool debug,QObject *parent=0,const char *name=0);
+  CuncConfig(bool debug,QObject *parent=0);
   CuncConfig(QString filename,bool debug);
   ~CuncConfig();
   QString filename() const;

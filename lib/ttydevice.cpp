@@ -1,8 +1,8 @@
-//   ttydevice.cpp
+// ttydevice.cpp
 //
-//   A Qt driver for tty ports on Linux.
+//   A Qt driver for tty ports.
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2010-1021 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Library General Public License 
@@ -17,66 +17,87 @@
 //   License along with this program; if not, write to the Free Software
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//
 
 #include <stdio.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <fcntl.h>
-#include <qiodevice.h>
+#include <syslog.h>
 
-#include <ttydevice.h>
+#include "ttydevice.h"
 
-
-TTYDevice::TTYDevice() : QIODevice()
+TTYDevice::TTYDevice(QObject *parent)
+  : QIODevice(parent)
 {
-  Init();
+  tty_speed=9600;
+  tty_length=8;
+  tty_parity=TTYDevice::None;
+  tty_flow_control=TTYDevice::FlowNone;
+  tty_open=false;
+
+  tty_write_timer=new QTimer(this);
+  tty_write_timer->setSingleShot(false);
+  connect(tty_write_timer,SIGNAL(timeout()),this,SLOT(writeTtyData()));
 }
 
 TTYDevice::~TTYDevice()
 {
-  if(tty_open) {
-    close();
-  }
+  close();
+  delete tty_write_timer;
 }
 
-bool TTYDevice::open(int mode)
+
+bool TTYDevice::open(QIODevice::OpenMode mode)
 {
   int flags=O_NONBLOCK|O_NOCTTY;
   struct termios term;
 
+  QIODevice::open(mode);
+
   tty_mode=mode;
-  if((mode&IO_ReadWrite)==IO_ReadWrite) {
+  if((mode&QIODevice::ReadWrite)==QIODevice::ReadWrite) {
     flags|=O_RDWR;
   }
   else {
-    if(((mode&IO_WriteOnly)!=0)) {
+    if(((mode&QIODevice::WriteOnly)!=0)) {
       flags|=O_WRONLY;
     }
-    if(((mode&IO_ReadOnly)!=0)) {
+    if(((mode&QIODevice::ReadOnly)!=0)) {
       flags|=O_RDONLY;
     }
   }
-  if((mode&IO_Append)!=0) {
+  if((mode&QIODevice::Append)!=0) {
     flags|=O_APPEND;
   }
-  if((mode&IO_Truncate)!=0) {
+  if((mode&QIODevice::Truncate)!=0) {
     flags|=O_TRUNC;
   }
 
-  if((tty_fd=::open((const char *)tty_name,flags))<0) {
-    tty_status=IO_OpenError;
+  if((tty_fd=::open(tty_name.toUtf8(),flags))<0) {
     return false;
   }
   tty_open=true;
-  tty_status=IO_Ok;
 
   tcgetattr(tty_fd,&term);
-  cfsetispeed(&term,B0);
+
+  //
+  // Set Speed
+  //
+  //cfsetispeed(&term,B0);
+  cfsetispeed(&term,tty_speed);
   cfsetospeed(&term,tty_speed);
+
+  //
+  // Set Mode
+  //
   cfmakeraw(&term);
   term.c_iflag |= IGNBRK; 
+
+  //
+  // Set Parity
+  //
   switch(tty_parity) {
   case TTYDevice::None:
     term.c_iflag |= IGNPAR;
@@ -90,7 +111,58 @@ bool TTYDevice::open(int mode)
     term.c_cflag |= PARENB|PARODD;
     break;
   }
+
+  //
+  // Set Word Length
+  //
+  //term.c_cflag &= ~CSIZE;
+  switch(tty_length) {
+  case 5:
+    term.c_cflag |= CS5;
+    break;
+
+  case 6:
+    term.c_cflag |= CS6;
+    break;
+
+  case 7:
+    term.c_cflag |= CS7;
+    break;
+
+  case 8:
+    term.c_cflag |= CS8;
+    break;
+  }
+
+  //
+  // Set Flow Control
+  //
+  switch(tty_flow_control) {
+  case TTYDevice::FlowNone:
+    term.c_cflag &= ~CRTSCTS;
+    term.c_iflag &= ~IXON;
+    term.c_iflag &= ~IXOFF;
+    break;
+
+  case TTYDevice::FlowRtsCts:
+    term.c_cflag |= CRTSCTS;
+    term.c_iflag &= ~IXON;
+    term.c_iflag &= ~IXOFF;
+    break;
+
+  case TTYDevice::FlowXonXoff:
+    term.c_cflag &= ~CRTSCTS;
+    term.c_iflag |= IXON;
+    term.c_iflag |= IXOFF;
+    break;
+  }
+
   tcsetattr(tty_fd,TCSADRAIN,&term);
+
+  tty_notifier=new QSocketNotifier(tty_fd,QSocketNotifier::Read,this);
+  connect(tty_notifier,SIGNAL(activated(int)),this,SLOT(readTtyData(int)));
+
+  tty_write_timer->start(10);
 
   return true;
 }
@@ -99,220 +171,149 @@ bool TTYDevice::open(int mode)
 void TTYDevice::close()
 {
   if(tty_open) {
+    emit aboutToClose();
+    tty_write_timer->stop();
+    delete tty_notifier;
+    tty_notifier=NULL;
     ::close(tty_fd);
+    if((tty_mode&QIODevice::ReadOnly)!=0) {
+      emit readChannelFinished();
+    }
   }
   tty_open=false;
 }
 
 
-int TTYDevice::socket() const
+int TTYDevice::socketDescriptor() const
 {
-  return tty_fd;
+  return tty_notifier->socket();
 }
 
 
-void TTYDevice::flush()
+QString TTYDevice::name() const
 {
+  return tty_name;
 }
 
 
-Q_LONG TTYDevice::readBlock(char *data,Q_ULONG maxlen)
+void TTYDevice::setName(const QString &str)
 {
-  Q_LONG n;
-
-  if((n=read(tty_fd,data,(size_t)maxlen))<0) {
-    if(errno!=EAGAIN) {
-      tty_status=IO_ReadError;
-      return -1;
-    }
-    return 0;
-  }
-  tty_status=IO_Ok;
-  return n;
+  tty_name=str;
 }
 
 
-Q_LONG TTYDevice::writeBlock(const char *data,Q_ULONG len)
+qint64 TTYDevice::read(char *data,qint64 maxlen)
 {
-  Q_LONG n;
-
-  if((n=write(tty_fd,data,(size_t)len))<0) {
-    tty_status=IO_WriteError;
-    return n;
-  }
-  tty_status=IO_Ok;
-  return n;
+  return readData(data,maxlen);
 }
 
 
-int TTYDevice::getch()
+QByteArray TTYDevice::read(qint64 maxlen)
 {
-  char c;
-  int n;
-
-  if((n=readBlock(&c,1))<0) {
-    tty_status=IO_ReadError;
-    return -1;
-  }
-  return (int)c;
+  qint64 n=0;
+  char *data=new char[maxlen];
+  n=readData(data,maxlen);
+  QByteArray ret(data,n);
+  delete data;
+  return ret;
 }
 
 
-int TTYDevice::putch(int ch)
+QByteArray TTYDevice::readAll()
 {
-  char c;
-  int n;
-
-  c=(char)ch;
-  if((n=writeBlock(&c,1))<0) {
-    tty_status=IO_WriteError;
-    return -1;
-  }
-  return ch;
+  return read(bytesAvailable());
 }
 
 
-int TTYDevice::ungetch(int ch)
+qint64 TTYDevice::readBlock(char *data,qint64 maxlen)
 {
-  tty_status=IO_WriteError;
-  return -1;
+  return readData(data,maxlen);
 }
 
 
-QIODevice::Offset TTYDevice::size() const
+qint64 TTYDevice::write(const char *data,qint64 len)
 {
-  return 0;
+  return writeData(data,len);
 }
 
 
-int TTYDevice::flags() const
+qint64 TTYDevice::write(const QByteArray &array)
 {
-  return tty_mode|state();
+  return write(array.constData(),array.size());
 }
 
 
-int TTYDevice::mode() const
+bool TTYDevice::getChar(char *ch)
 {
-  return tty_mode;
+  return readData(ch,1)==1;
 }
 
 
-int TTYDevice::state() const
+bool TTYDevice::putChar(char ch)
 {
+  return writeData(&ch,1)==1;
+}
+
+
+qint64 TTYDevice::size() const
+{
+  return bytesAvailable();
+}
+
+
+qint64 TTYDevice::bytesAvailable() const
+{
+  int val=0;
   if(tty_open) {
-    return IO_Open;
+    ioctl(tty_fd,FIONREAD,&val);
   }
-  return 0;
+  return val;
 }
 
 
-bool TTYDevice::isDirectAccess() const
+qint64 TTYDevice::bytesToWrite() const
 {
-  return false;
+  int val=0;
+  if(tty_open) {
+    ioctl(tty_fd,TIOCOUTQ,&val);
+  }
+  return val;
 }
 
 
-bool TTYDevice::isSequentialAccess() const
-{
-  return true;
-}
-
-
-bool TTYDevice::isCombinedAccess() const
-{
-  return false;
-}
-
-
-bool TTYDevice::isBuffered() const
-{
-  return false;
-}
-
-
-bool TTYDevice::isRaw() const
+bool TTYDevice::isSequential() const
 {
   return true;
-}
-
-
-bool TTYDevice::isSynchronous() const
-{
-  return true;
-}
-
-
-bool TTYDevice::isAsynchronous() const
-{
-  return false;
-}
-
-
-bool TTYDevice::isTranslated() const
-{
-  return false;
 }
 
 
 bool TTYDevice::isReadable() const
 {
-  if(((tty_mode&IO_ReadOnly)!=0)||((tty_mode&IO_ReadWrite)!=0)) {
-    return true;
-  }
-  return false;
+  return((tty_mode&QIODevice::ReadOnly)!=0)||
+    ((tty_mode&QIODevice::ReadWrite)!=0);
 }
 
 
 bool TTYDevice::isWritable() const
 {
-  if(((tty_mode&IO_WriteOnly)!=0)||((tty_mode&IO_ReadWrite)!=0)) {
-    return true;
-  }
-  return false;
-}
-
-
-bool TTYDevice::isReadWrite() const
-{
-  if((tty_mode&IO_ReadWrite)!=0) {
-    return true;
-  }
-  return false;
-
-}
-
-
-bool TTYDevice::isInactive() const
-{
-  if(!tty_open) {
-    return true;
-  }
-  return false;
+  return ((tty_mode&QIODevice::WriteOnly)!=0)||
+    ((tty_mode&QIODevice::ReadWrite)!=0);
 }
 
 
 bool TTYDevice::isOpen() const
 {
-  if(tty_open) {
-    return true;
-  }
-  return false;
+  return tty_open;
 }
 
 
-int TTYDevice::status() const
+QString TTYDevice::deviceName() const
 {
-  return tty_status;
+  return tty_name;
 }
 
 
-void TTYDevice::resetStatus()
-{
-  tty_status=IO_Ok;
-}
-
-
-void TTYDevice::setName(QString name)
+void TTYDevice::setDeviceName(QString name)
 {
   tty_name=name;
 }
@@ -484,8 +485,6 @@ void TTYDevice::setSpeed(int speed)
     tty_speed=B9600;
     break;
   }
-   
-
 }
 
 
@@ -550,10 +549,71 @@ void TTYDevice::setParity(Parity parity)
 }
 
 
-void TTYDevice::Init()
+TTYDevice::FlowControl TTYDevice::flowControl() const
 {
-  tty_speed=9600;
-  tty_length=8;
-  tty_parity=TTYDevice::None;
-  tty_open=false;
+  return tty_flow_control;
+}
+
+
+void TTYDevice::setFlowControl(FlowControl ctrl)
+{
+  tty_flow_control=ctrl;
+}
+
+
+int TTYDevice::fileDescriptor() const
+{
+  return tty_fd;
+}
+
+
+qint64 TTYDevice::readData(char *data,qint64 maxlen)
+{
+  qint64 n;
+
+  if((n=::read(tty_fd,data,(size_t)maxlen))<0) {
+    return 0;
+  }
+  return n;
+}
+
+
+qint64 TTYDevice::writeData(const char *data,qint64 len)
+{
+  for(qint64 i=0;i<len;i++) {
+    tty_write_queue.push(data[i]);
+  }
+  emit bytesWritten(len);
+  return len;
+}
+
+
+void TTYDevice::readTtyData(int sock)
+{
+  emit readyRead();
+}
+
+
+void TTYDevice::writeTtyData()
+{
+  char data[2048];
+  int bytes=0;
+  int s;
+  
+  ioctl(tty_fd,TIOCOUTQ,&bytes);
+  int n=2048-bytes;
+  if((int)tty_write_queue.size()<n) {
+    n=tty_write_queue.size();
+  }
+  if(n==0) {
+    return;
+  }
+
+  for(ssize_t i=0;i<n;i++) {
+    data[i]=tty_write_queue.front();
+    tty_write_queue.pop();
+  }
+  if((s=::write(tty_fd,data,n))!=n) {
+    syslog(LOG_WARNING,"TTYDevice::writeTtyData write lost %c bytes",n-s);
+  }
 }

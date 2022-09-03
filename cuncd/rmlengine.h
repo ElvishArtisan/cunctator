@@ -2,7 +2,7 @@
 //
 // An RML control engine
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -21,12 +21,14 @@
 #ifndef RMLENGINE_H
 #define RMLENGINE_H
 
+#include <stdint.h>
+
 #include <vector>
 
-#include <qobject.h>
-#include <qhostaddress.h>
-#include <qstring.h>
-#include <qsocketdevice.h>
+#include <QHostAddress>
+#include <QObject>
+#include <QString>
+#include <QUdpSocket>
 
 #include <profile.h>
 #include <cunc.h>
@@ -35,7 +37,7 @@ class RmlEngine : public QObject
 {
   Q_OBJECT;
  public:
-  RmlEngine(Profile *p, int id,QObject *parent=0,const char *name=0);
+  RmlEngine(Profile *p, int id,QObject *parent=0);
   ~RmlEngine();
   void sendDelayLength();
 
@@ -47,38 +49,38 @@ class RmlEngine : public QObject
   QString ResolveCommand(const QString &cmd) const;
   void LoadStack(Profile *p,int id,const QString &tag,
 		 std::vector<QHostAddress> *addrs,
-		 std::vector<Q_UINT16> *ports,
+		 std::vector<uint16_t> *ports,
 		 std::vector<QString> *cmds);
 
   std::vector<QHostAddress> rml_on_bypassed_addresses;
   std::vector<QString> rml_on_bypassed_commands;
-  std::vector<Q_UINT16> rml_on_bypassed_ports;
+  std::vector<uint16_t> rml_on_bypassed_ports;
 
   std::vector<QHostAddress> rml_on_entering_addresses;
   std::vector<QString> rml_on_entering_commands;
-  std::vector<Q_UINT16> rml_on_entering_ports;
+  std::vector<uint16_t> rml_on_entering_ports;
 
   std::vector<QHostAddress> rml_on_entered_addresses;
   std::vector<QString> rml_on_entered_commands;
-  std::vector<Q_UINT16> rml_on_entered_ports;
+  std::vector<uint16_t> rml_on_entered_ports;
 
   std::vector<QHostAddress> rml_on_exiting_addresses;
   std::vector<QString> rml_on_exiting_commands;
-  std::vector<Q_UINT16> rml_on_exiting_ports;
+  std::vector<uint16_t> rml_on_exiting_ports;
 
   std::vector<QHostAddress> rml_on_exited_addresses;
   std::vector<QString> rml_on_exited_commands;
-  std::vector<Q_UINT16> rml_on_exited_ports;
+  std::vector<uint16_t> rml_on_exited_ports;
 
   std::vector<QHostAddress> rml_on_dump_addresses;
   std::vector<QString> rml_on_dump_commands;
-  std::vector<Q_UINT16> rml_on_dump_ports;
+  std::vector<uint16_t> rml_on_dump_ports;
 
   std::vector<QHostAddress> rml_on_delay_change_addresses;
   std::vector<QString> rml_on_delay_change_commands;
-  std::vector<Q_UINT16> rml_on_delay_change_ports;
+  std::vector<uint16_t> rml_on_delay_change_ports;
 
-  QSocketDevice *rml_socket;
+  QUdpSocket *rml_socket;
   Cunctator::DelayState rml_delay_state;
   int rml_delay_length;
 };

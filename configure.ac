@@ -20,12 +20,12 @@ dnl   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
 dnl Use autoconf to process this into a configure script
 
-AC_INIT([cunctator],m4_esyscmd(cat PACKAGE_VERSION))
+AC_INIT(cunctator,m4_esyscmd(cat PACKAGE_VERSION))
 AM_INIT_AUTOMAKE
 AC_SUBST(RPM_RELEASE,1)
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_CONFIG_MACRO_DIR([m4])
-PKG_VERSION=m4_esyscmd(cat PACKAGE_VERSION)
+##PKG_VERSION=m4_esyscmd(cat PACKAGE_VERSION)
 
 #
 # Some Fully Resolved Install Paths
@@ -57,12 +57,12 @@ case ${host} in
 esac
 
 #
-# Check for Qt
+# Check for Qt (Mandatory)
 #
-BNV_HAVE_QT
-if test $have_qt = "no" ; then
-  AC_MSG_ERROR([*** Qt toolkit not found, unable to continue ***])
-fi
+PKG_CHECK_MODULES(QT5_CLI,Qt5Core Qt5Network,[],[AC_MSG_ERROR([*** Qt5 not found ***])])
+PKG_CHECK_MODULES(QT5_GUI,Qt5Widgets Qt5Gui Qt5Core Qt5Network,[],[AC_MSG_ERROR([*** Qt5 not found ***])])
+AC_CHECK_PROG(MOC_NAME,moc-qt5,[moc-qt5],[moc])
+AC_SUBST(MOC,$MOC_NAME)
 
 #
 # Determine the target architecture
@@ -76,6 +76,20 @@ AC_SUBST(ARCH,$ar_gcc_arch)
 #
 AR_GET_DISTRO()
 AC_SUBST(DISTRO,$ar_gcc_distro)
+
+#
+# Determine number of available CPU cores for building packages
+#
+AX_COUNT_CPUS([],[])
+if test $CPU_COUNT -lt 2 ; then
+   AC_SUBST(CPUS_AVAIL,1)
+else
+   if test $CPU_COUNT -gt 16 ; then
+      AC_SUBST(CPUS_AVAIL,16)
+   else
+      AC_SUBST(CPUS_AVAIL,$(($CPU_COUNT-1)))
+   fi
+fi
 
 #
 # Check for JACK

@@ -2,7 +2,7 @@
 //
 // A class to read an ini formatted configuration file.
 //
-// (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+// (C) Copyright 2002-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Library General Public License 
@@ -17,19 +17,49 @@
 //   License along with this program; if not, write to the Free Software
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//
-
 
 #ifndef PROFILE_H
 #define PROFILE_H
 
-
 #include <vector>
-using namespace std;
 
-#include <qstring.h>
+#include <QString>
 
-#include <profilesection.h>
+class ProfileLine
+{
+ public:
+  ProfileLine();
+  QString tag() const;
+  void setTag(QString tag);
+  QString value() const;
+  void setValue(QString value);
+  void clear();
+
+ private:
+  QString line_tag;
+  QString line_value;
+};
+
+
+
+
+class ProfileSection
+{
+ public:
+  ProfileSection();
+  QString name() const;
+  void setName(QString name);
+  bool getValue(QString tag,QString *value) const;
+  void addValue(QString tag,QString value);
+  void clear();
+
+ private:
+  QString section_name;
+  std::vector<ProfileLine> section_line;
+};
+
+
+
 
 /**
  * @short Implements an ini configuration file parser.
@@ -46,7 +76,8 @@ class Profile
   **/
   Profile();
   QString source() const;
-  bool setSource(QString filename);
+  bool setSource(const QString &filename);
+  void setSourceString(const QString &str);
   QString stringValue(QString section,QString tag,
 		      QString default_value="",bool *ok=0) const;
   int intValue(QString section,QString tag,
@@ -63,7 +94,7 @@ class Profile
 
  private:
   QString profile_source;
-  vector<ProfileSection> profile_section;
+  std::vector<ProfileSection> profile_section;
 };
 
 

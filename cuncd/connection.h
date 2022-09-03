@@ -21,8 +21,8 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#include <qobject.h>
-#include <qsocket.h>
+#include <QObject>
+#include <QTcpSocket>
 
 #include <cuncconfig.h>
 
@@ -30,7 +30,7 @@ class Connection : public QObject
 {
   Q_OBJECT;
  public:
-  Connection(int fd,QObject *parent=0,const char *name=0);
+  Connection(QTcpSocket *sock,QObject *parent=0);
   ~Connection();
   int id() const;
   bool isZombie() const;
@@ -55,7 +55,7 @@ class Connection : public QObject
 
  private:
   void ProcessCommand(const QString &cmd);
-  QSocket *conn_socket;
+  QTcpSocket *conn_socket;
   QString conn_buffer;
 };
 

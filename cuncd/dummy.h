@@ -2,7 +2,7 @@
 //
 // Dummy delay driver for Cunctator
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -32,7 +32,7 @@ class Dummy : public Delay
 {
  Q_OBJECT
  public:
-  Dummy(Profile *p,int n,bool debug,QObject *parent,const char *name=0);
+  Dummy(Profile *p,int n,bool debug,QObject *parent);
   ~Dummy();
   Cunctator::DelayType type();
   QString description();

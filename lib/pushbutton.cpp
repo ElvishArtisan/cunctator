@@ -2,7 +2,7 @@
 //
 //   Flashing button widget.
 //
-//   (C) Copyright 2002-2003,2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2002-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Library General Public License 
@@ -17,38 +17,37 @@
 //   License along with this program; if not, write to the Free Software
 //   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-//
-#include <qpushbutton.h>
-#include <qpainter.h>
-#include <qpixmap.h>
-#include <qpointarray.h>
-#include <qtimer.h>
-#include <qpalette.h>
 
-#include <pushbutton.h>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QPalette>
+#include <QPixmap>
+//#include <QPointArray>
+#include <QPushButton>
+#include <QTimer>
 
+#include "pushbutton.h"
 
-PushButton::PushButton(QWidget *parent=0,const char *name) :
-  QPushButton(parent,name)
+PushButton::PushButton(QWidget *parent)
+  : QPushButton(parent)
 {
   Init();
 }
 
 
-PushButton::PushButton(const QString &text,QWidget *parent,
-			   const char *name)
-  : QPushButton(text,parent,name)
+PushButton::PushButton(const QString &text,QWidget *parent)
+  : QPushButton(text,parent)
 {
   Init();
 }
-
+/*
 PushButton::PushButton(const QIconSet &icon,const QString &text,
 			 QWidget *parent,const char *name)
   : QPushButton(text,parent,name)
 {
   Init();
 }
-
+*/
 
 QColor PushButton::flashColor() const
 {
@@ -63,7 +62,8 @@ void PushButton::setFlashColor(QColor color)
   int v=0;
 
   flash_color=color;  
-  flash_palette=QPalette(QColor(flash_color),backgroundColor());
+  flash_palette=
+    QPalette(QColor(flash_color),palette().color(QPalette::Background));
 
   color.getHsv(&h,&s,&v);
   if((h>180)&&(h<300)) {
@@ -79,8 +79,8 @@ void PushButton::setFlashColor(QColor color)
   }
   s=0;
   color.setHsv(h,s,v);
-  flash_palette.setColor(QPalette::Active,QColorGroup::ButtonText,color);
-  flash_palette.setColor(QPalette::Inactive,QColorGroup::ButtonText,color);
+  flash_palette.setColor(QPalette::Active,QPalette::ButtonText,color);
+  flash_palette.setColor(QPalette::Inactive,QPalette::ButtonText,color);
 }
 
 
@@ -124,15 +124,15 @@ void PushButton::setPalette(const QPalette &pal)
 void PushButton::mousePressEvent(QMouseEvent *e)
 {
   switch(e->button()) {
-      case QMouseEvent::LeftButton:
+      case Qt::LeftButton:
 	QPushButton::mousePressEvent(e);
 	break;
 	
-      case QMouseEvent::MidButton:
+      case Qt::MidButton:
 	emit centerPressed();
 	break;
 	
-      case QMouseEvent::RightButton:
+      case Qt::RightButton:
 	emit rightPressed();
 	break;
 
@@ -145,11 +145,11 @@ void PushButton::mousePressEvent(QMouseEvent *e)
 void PushButton::mouseReleaseEvent(QMouseEvent *e)
 {
   switch(e->button()) {
-      case QMouseEvent::LeftButton:
+      case Qt::LeftButton:
 	QPushButton::mouseReleaseEvent(e);
 	break;
 	
-      case QMouseEvent::MidButton:
+      case Qt::MidButton:
 	e->accept();
 	emit centerReleased();
 	if((e->x()>=0)&&(e->x()<geometry().width())&&
@@ -159,7 +159,7 @@ void PushButton::mouseReleaseEvent(QMouseEvent *e)
 	}
 	break;
 	
-      case QMouseEvent::RightButton:
+      case Qt::RightButton:
 	e->accept();
 	emit rightReleased();
 	if((e->x()>=0)&&(e->x()<geometry().width())&&
@@ -185,7 +185,8 @@ void PushButton::setFlashPeriod(int period)
 {
   flash_period=period;
   if(flash_timer->isActive()) {
-    flash_timer->changeInterval(flash_period);
+    flash_timer->stop();
+    flash_timer->start(flash_period);
   }
 }
 
@@ -216,7 +217,6 @@ void PushButton::tickClock()
   if(!flashing_enabled) {
     return;
   }
-  QKeySequence a=accel();
   if(flash_state) {
     flash_state=false;
     QPushButton::setPalette(flash_palette);
@@ -225,7 +225,6 @@ void PushButton::tickClock()
     flash_state=true;
     QPushButton::setPalette(off_palette);
   }
-  setAccel(a);
 }
 
 
@@ -234,7 +233,6 @@ void PushButton::tickClock(bool state)
   if(!flashing_enabled) {
     return;
   }
-  QKeySequence a=accel();
   if(state) {
     flash_state=false;
     QPushButton::setPalette(flash_palette);
@@ -243,7 +241,6 @@ void PushButton::tickClock(bool state)
     flash_state=true;
     QPushButton::setPalette(off_palette);
   }
-  setAccel(a);
 }
 
 

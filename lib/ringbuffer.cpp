@@ -2,7 +2,7 @@
 //
 // A ringbuffer class for PCM audio
 //
-// (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+// (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Library General Public License 
@@ -19,7 +19,7 @@
 //
 //
 
-#include <ringbuffer.h>
+#include "ringbuffer.h"
 
 Ringbuffer::Ringbuffer(size_t bytes,unsigned channels)
 {

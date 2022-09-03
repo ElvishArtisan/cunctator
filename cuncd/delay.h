@@ -2,7 +2,7 @@
 //
 // Abstract base class for Cunctator delay devices.
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -30,7 +30,7 @@ class Delay : public QObject
 {
  Q_OBJECT
  public:
-  Delay(Profile *p,int id,bool debug,QObject *parent=0,const char *name=0);
+  Delay(Profile *p,int id,bool debug,QObject *parent=0);
   ~Delay();
   int id() const;
   bool debugMode() const;

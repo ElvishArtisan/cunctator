@@ -2,10 +2,13 @@
 
 # get_distro.pl
 # 
-# Try to determine the distribution name and version of the host machine.
-# Used as part of the AR_GET_DISTRO() macro.
+#   Read various fields from 'os-release'.
+#   Used as part of the AR_GET_DISTRO() macro.
 #
-#   (C) Copyright 2012,2016 Fred Gleason <fredg@salemradiolabs.com>
+#   See https://www.freedesktop.org/software/systemd/man/os-release.html
+#   for a description of the various fields.
+#
+#   (C) Copyright 2012-2021 Fred Gleason <fredg@salemradiolabs.com>
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as
@@ -22,84 +25,84 @@
 #   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-#USAGE: get_distro.pl NAME|VERSION|MAJOR|MINOR|POINT
+my $usage="USAGE: get_distro.pl NAME|PRETTY_NAME|ID|ID_LIKE|VERSION|MAJOR|MINOR|POINT";
 
 if($ARGV[0] eq "NAME") {
-    if(!system("test","-f","/etc/SuSE-release")) {
-	print "SuSE";
-	exit 0;
-    }
-    if(!system("test","-f","/etc/debian_version")) {
-	print "Debian";
-	exit 0;
-    }
-    if(!system("test","-f","/etc/redhat-release")) {
-	print "RedHat";
-	exit 0;
-    }
+    print &Extract("NAME");
+    exit 0;
+}
+
+if($ARGV[0] eq "PRETTY_NAME") {
+    print &Extract("PRETTY_NAME");
+    exit 0;
+}
+
+if($ARGV[0] eq "ID") {
+    print &Extract("ID");
+    exit 0;
+}
+
+if($ARGV[0] eq "ID_LIKE") {
+    print &Extract("ID_LIKE");
+    exit 0;
 }
 
 if($ARGV[0] eq "VERSION") {
-    if(!system("test","-f","/etc/SuSE-release")) {
-	print &GetVersion("/etc/SuSE-release");
-	exit 0;
-    }
-    if(!system("test","-f","/etc/debian_version")) {
-	print &GetVersion("/etc/debian_version");
-	exit 0;
-    }
-    if(!system("test","-f","/etc/redhat-release")) {
-	print &GetVersion("/etc/redhat-release");
-	exit 0;
-    }
+    print &Extract("VERSION_ID");
+    exit 0;
 }
 
 if($ARGV[0] eq "MAJOR") {
-    if(!system("test","-f","/etc/SuSE-release")) {
-	print &GetMajor("/etc/SuSE-release");
-	exit 0;
-    }
-    if(!system("test","-f","/etc/debian_version")) {
-	print &GetMajor("/etc/debian_version");
-	exit 0;
-    }
-    if(!system("test","-f","/etc/redhat-release")) {
-	print &GetMajor("/etc/redhat-release");
-	exit 0;
-    }
+    my $ver=&Extract("VERSION_ID");
+    my @f0=split '\.',$ver;
+    print $f0[0];
+    exit 0;
 }
 
 if($ARGV[0] eq "MINOR") {
-    if(!system("test","-f","/etc/SuSE-release")) {
-	print &GetMinor("/etc/SuSE-release");
+    my $ver=&Extract("VERSION_ID");
+    my @f0=split '\.',$ver;
+    if(scalar(@f0)>=2) {
+	print $f0[1];
 	exit 0;
     }
-    if(!system("test","-f","/etc/debian_version")) {
-	print &GetMinor("/etc/debian_version");
-	exit 0;
-    }
-    if(!system("test","-f","/etc/redhat-release")) {
-	print &GetMinor("/etc/redhat-release");
-	exit 0;
-    }
+    print "0";
+    exit 0;
 }
 
 if($ARGV[0] eq "POINT") {
-    if(!system("test","-f","/etc/SuSE-release")) {
-	print &GetPoint("/etc/SuSE-release");
+    my $ver=&Extract("VERSION_ID");
+    my @f0=split '\.',$ver;
+    if(scalar(@f0)>=3) {
+	print $f0[2];
 	exit 0;
     }
-    if(!system("test","-f","/etc/debian_version")) {
-	print &GetPoint("/etc/debian_version");
-	exit 0;
-    }
-    if(!system("test","-f","/etc/redhat-release")) {
-	print &GetPoint("/etc/redhat-release");
-	exit 0;
-    }
+    print "0";
+    exit 0;
 }
 
+print $usage;
 exit 256;
+
+
+sub Extract
+{
+    if((open RELEASE,"<","/etc/os-release") ||
+       (open RELEASE,"<","/usr/lib/os-release")) {
+	while(<RELEASE>) {
+	    my @f0=split "\n",$_;
+	    for(my $i=0;$i<@f0;$i++) {
+		my @f1=split "=",$f0[$i];
+		if($f1[0] eq $_[0]) {
+		    $f1[1]=~s/^"(.*)"$/$1/;
+		    return $f1[1];
+#		    return substr($f1[1],1,length($f1[1])-2);
+		}
+	    }
+	}
+    }
+    return "";
+}
 
 
 sub GetVersion
