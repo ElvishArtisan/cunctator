@@ -37,6 +37,7 @@ dist_cuncd_SOURCES = airtools.cpp airtools.h\
                      delay.cpp delay.h\
                      dummy.cpp dummy.h\
                      jackdelay.cpp jackdelay.h\
+                     ringbuffer.cpp ringbuffer.h\
                      rmlengine.cpp rmlengine.h\
                      udpqueue.cpp udpqueue.h\
                      globals.h

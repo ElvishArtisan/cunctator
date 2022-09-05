@@ -31,7 +31,6 @@ lib_LTLIBRARIES = libcunc.la
 dist_libcunc_la_SOURCES = cmdswitch.cpp cmdswitch.h\
                           profile.cpp profile.h\
                           pushbutton.cpp pushbutton.h\
-                          ringbuffer.cpp ringbuffer.h\
                           ttydevice.cpp ttydevice.h\
                           cunc.h
 

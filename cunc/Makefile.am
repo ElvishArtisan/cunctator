@@ -19,7 +19,7 @@
 ##
 ## Use automake to process this into a Makefile.in
 
-AM_CPPFLAGS = -Wall -DPREFIX=\"$(prefix)\" -Wno-strict-aliasing -std=c++11 -fPIC @JACK_CFLAGS@ @QT5_GUI_CFLAGS@ $(top_srcdir)/lib
+AM_CPPFLAGS = -Wall -DPREFIX=\"$(prefix)\" -Wno-strict-aliasing -std=c++11 -fPIC @QT5_GUI_CFLAGS@ $(top_srcdir)/lib
 LIBS = -L$(top_srcdir)/lib
 MOC = @QT5_MOC@
 
@@ -31,7 +31,7 @@ bin_PROGRAMS = cunc
 
 dist_cunc_SOURCES = cuncclient.cpp cuncclient.h
 nodist_cunc_SOURCES = moc_cuncclient.cpp
-cunc_LDADD = @JACK_LIBS@ @QT5_GUI_LIBS@ @CUNC_LIBS@
+cunc_LDADD = @QT5_GUI_LIBS@ @CUNC_LIBS@
 
 EXTRA_DIST = cunc.pro
 

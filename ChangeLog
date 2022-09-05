@@ -134,3 +134,6 @@
 	* Refactored 'configure.ac' to use the 'PKG_CHECK_MODULES()' macro.
 2022-09-05 Fred Gleason <fredg@paravelsystems.com>
 	* Fixed a regression in 'configure.ac' that broke the build.
+2022-09-05 Fred Gleason <fredg@paravelsystems.com>
+	* Moved the 'Ringbuffer' class from the convenience library to
+	cuncd(8).
