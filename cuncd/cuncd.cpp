@@ -103,13 +103,6 @@ MainObject::MainObject(QObject *parent)
   cuncd_config->dumpConfig(stdout);
 
   //
-  // Detach
-  //
-  if(!debug) {
-    daemon(0,0);
-  }
-
-  //
   // Configure Signals
   //
   ::signal(SIGCHLD,SigHandler);

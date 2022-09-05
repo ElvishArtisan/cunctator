@@ -3,7 +3,7 @@ dnl
 dnl Autoconf configuration for Cunctator.
 dnl Use autoconf to process this into a configure script
 dnl
-dnl   (C) Copyright 2011-2018 Fred Gleason <fredg@paravelsystems.com>
+dnl   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 dnl
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License version 2 as
@@ -25,7 +25,6 @@ AM_INIT_AUTOMAKE
 AC_SUBST(RPM_RELEASE,1)
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_CONFIG_MACRO_DIR([m4])
-##PKG_VERSION=m4_esyscmd(cat PACKAGE_VERSION)
 
 #
 # Some Fully Resolved Install Paths
@@ -57,7 +56,7 @@ case ${host} in
 esac
 
 #
-# Check for Qt (Mandatory)
+# Check for Qt5 (Mandatory)
 #
 PKG_CHECK_MODULES(QT5_CLI,Qt5Core Qt5Network,[],[AC_MSG_ERROR([*** Qt5 not found ***])])
 PKG_CHECK_MODULES(QT5_GUI,Qt5Widgets Qt5Gui Qt5Core Qt5Network,[],[AC_MSG_ERROR([*** Qt5 not found ***])])
@@ -121,13 +120,28 @@ else
   AC_SUBST(RPM_ROOT,/usr/src/packages)
 fi 
 
+#
+# Generated File Warnings
+#
+AC_SUBST_FILE(GENERATED_C_FILE_WARNING)
+GENERATED_C_FILE_WARNING=$srcdir/helpers/c_file_warning
+
+AC_SUBST_FILE(GENERATED_SCRIPT_FILE_WARNING)
+GENERATED_SCRIPT_FILE_WARNING=$srcdir/helpers/script_file_warning
+
+AC_SUBST_FILE(GENERATED_XML_FILE_WARNING)
+GENERATED_XML_FILE_WARNING=$srcdir/helpers/xml_file_warning
+
 AC_OUTPUT( \
+  helpers/Makefile \
   lib/Makefile \
   cuncd/Makefile \
   cunc/Makefile \
   conf/Makefile \
   docs/Makefile \
   icons/Makefile \
+  systemd/cunctator.service \
+  systemd/Makefile \
   xdg/Makefile \
   cunctator.spec \
   Makefile \

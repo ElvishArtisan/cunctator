@@ -4,7 +4,7 @@
 ##
 ## Use automake to process this into a Makefile.in
 ##
-##   (C) Copyright 2011-2018 Fred Gleason <fredg@paravelsystems.com>
+##   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 ##
 ##   This program is free software; you can redistribute it and/or modify
 ##   it under the terms of the GNU General Public License version 2 as
@@ -20,19 +20,20 @@
 ##   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ##
 
-SUBDIRS = lib cuncd cunc conf docs icons xdg
+SUBDIRS = helpers\
+          lib\
+          cuncd\
+          cunc\
+          conf\
+          docs\
+          icons\
+          systemd\
+          xdg
 
 ACLOCAL_AMFLAGS = -I m4
 
 maintainer-clean-local:	
 	rm -rf m4
-
-install-exec-local:	
-	mkdir -p /etc/init.d
-	cp rc.cuncd /etc/init.d/cuncd
-
-uninstall-exec:
-	rm -f /etc/init.d/cuncd
 
 rpm:	dist
 	mkdir -p $(HOME)/rpmbuild/SOURCES
@@ -43,9 +44,12 @@ rpm:	dist
 	rm $(HOME)/rpmbuild/SOURCES/cunctator-$(VERSION).tar.gz
 	rm -rf $(HOME)/rpmbuild/BUILD/cunctator-$(VERSION)
 
-EXTRA_DIST = cunctator.spec.in cunctator.pro autogen.sh\
-             get_target.sh get_distro.pl\
-             PACKAGE_VERSION rc.cuncd
+EXTRA_DIST = cunctator.spec.in\
+             cunctator.pro\
+             autogen.sh\
+             get_target.sh\
+             get_distro.pl\
+             PACKAGE_VERSION
 
 zip:	dist
 	tar -zxf cunctator-@VERSION@.tar.gz
