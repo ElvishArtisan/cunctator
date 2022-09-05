@@ -20,7 +20,7 @@
 ##   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ##
 
-AM_CPPFLAGS = -Wall -DPREFIX=\"$(prefix)\" -Wno-strict-aliasing -std=c++11 -fPIC @QT5_GUI_CFLAGS@ -I$(top_srcdir)/lib
+AM_CPPFLAGS = -Wall -DPREFIX=\"$(prefix)\" -Wno-strict-aliasing -std=c++11 -fPIC @QT5_GUI_CFLAGS@  @JACK_CFLAGS@ @SOUNDTOUCH_CFLAGS@ -I$(top_srcdir)/lib
 LIBS = -L$(top_srcdir)/lib
 MOC = @QT5_MOC@
 
@@ -52,7 +52,7 @@ nodist_cuncd_SOURCES = moc_airtools.cpp\
                        moc_rmlengine.cpp\
                        moc_udpqueue.cpp
 
-cuncd_LDADD = @CUNC_LIBS@ @QT5_GUI_LIBS@
+cuncd_LDADD = @JACK_LIBS@ @SOUNDTOUCH_LIBS@ @CUNC_LIBS@ @QT5_GUI_LIBS@
 
 EXTRA_DIST = cuncd.pro
 
