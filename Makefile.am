@@ -56,8 +56,25 @@ zip:	dist
 	zip -r cunctator-@VERSION@.zip cunctator-@VERSION@
 	rm -rf cunctator-@VERSION@
 
-CLEANFILES = *~ moc_* *.tgz *.mo *.rpm *.zip
-DISTCLEANFILES = *~ moc_* *.tar.gz *.spec dvt-bin.conf *.spec
-MAINTAINERCLEANFILES = *~ Makefile.in configure aclocal.m4 moc_* *.tar.gz\
-                       depcomp install-sh missing mkinstalldirs\
-                       config.guess config.sub ltmain.sh
+CLEANFILES = *~\
+             *.tgz\
+             *.mo\
+             *.rpm\
+             *.zip\
+             moc_*
+DISTCLEANFILES = *~\
+                 *.spec\
+                 *.spec\
+                 *.tar.gz
+MAINTAINERCLEANFILES = *~\
+                       aclocal.m4\
+                       compile\
+                       config.guess\
+                       config.sub\
+                       configure\
+                       depcomp\
+                       install-sh\
+                       ltmain.sh\
+                       Makefile.in\
+                       missing\
+                       mkinstalldirs
