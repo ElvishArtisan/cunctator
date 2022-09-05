@@ -51,11 +51,12 @@ class Bd600 : public Delay
   void watchdogData();
 
  private:
+  void ProcessCommand(const QString &cmd);
   Cunctator::DelayState bd600_state;
   int bd600_delay_length;
   TTYDevice *bd600_tty;
-  //  QSocketNotifier *bd600_notify;
   QTimer *bd600_watchdog_timer;
+  QString bd600_accum;
 };
 
 

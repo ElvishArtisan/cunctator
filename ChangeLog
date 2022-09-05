@@ -115,3 +115,6 @@
 	* Removed all CVS 'Id' tags from source files.
 2022-09-03 Fred Gleason <fredg@paravelsystems.com>
 	* Ported codebase to Qt5.
+2022-09-05 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed a regression in the BD-600 driver that caused the current
+	delay value to be intermittently detected.

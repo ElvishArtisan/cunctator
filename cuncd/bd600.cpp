@@ -113,69 +113,27 @@ void Bd600::dump()
 
 void Bd600::readyReadData()
 {
-  char data[1500];
-  int n;
-  int delay_length=0;
-  Cunctator::DelayState state=bd600_state;
+  QString data;
 
   bd600_watchdog_timer->stop();
-  while((n=bd600_tty->readBlock(data,1500))>0) {
-    data[n]=0;
-    switch(n) {
-    case 5:   // Delay length
-      delay_length=QString(data).left(4).toInt();
-      if(delay_length!=bd600_delay_length) {
-	if(delay_length<(bd600_delay_length-100)) {
-	  emit dumped(id());
-	}
-	bd600_delay_length=delay_length;
-	emit delayStateChanged(id(),bd600_state,delayLength());
-      }
-      bd600_tty->write("M",1);
+  data=QString(bd600_tty->readAll());
+  for(int i=0;i<data.length();i++) {
+    char c=data.at(i).toLatin1();
+    switch(c) {
+    case '>':
+      ProcessCommand(bd600_accum);
+      bd600_accum.clear();
       break;
 
-    case 3:   // Operating mode
-      switch(data[0]) {
-      case 'B':  // Bypass
-	state=Cunctator::StateBypassed;
-	break;
-      case 'H':  // Static
-	state=Cunctator::StateEntered;
-	break;
-      case 'I':  // Panic
-	break;
-      case 'L':  // Live
-	state=Cunctator::StateExited;
-	break;
-      case 'M':  // Mute
-	break;
-      case 'P':  // Micro precision delay
-	break;
-      case 'R':  // Rebuild
-      case 'W':  // Wait for safe
-	state=Cunctator::StateEntering;
-	break;
-      case 'S':  // Sneeze
-	break;
-      case 'Z':  // Ramp to zero
-      case 'A':  // Wait and exit
-	state=Cunctator::StateExiting;
-	break;
-      }
-      if(state!=bd600_state) {
-	bd600_state=state;
-	emit delayStateChanged(id(),bd600_state,delayLength());
-      }
-      bd600_tty->write("T",1);
+    case '\n':
+    case '\r':
       break;
 
     default:
-      bd600_tty->write("M",1);
+      bd600_accum+=data.at(i);
       break;
     }
-    data[n]=0;
   }
-  bd600_watchdog_timer->start(BD600_WATCHDOG_INCREMENT);
 }
 
 
@@ -187,5 +145,73 @@ void Bd600::watchdogData()
     emit delayStateChanged(id(),bd600_state,delayLength());
   }
   bd600_tty->write("M",1);
+  bd600_watchdog_timer->start(BD600_WATCHDOG_INCREMENT);
+}
+
+
+void Bd600::ProcessCommand(const QString &cmd)
+{
+  int delay_length;
+  Cunctator::DelayState state=bd600_state;
+
+  switch(cmd.length()) {
+  case 4:   // Delay length
+    delay_length=cmd.left(4).toInt();
+    if(delay_length!=bd600_delay_length) {
+      if(delay_length<(bd600_delay_length-100)) {
+	emit dumped(id());
+      }
+      bd600_delay_length=delay_length;
+      emit delayStateChanged(id(),bd600_state,delayLength());
+    }
+    bd600_tty->write("M",1);
+    break;
+
+  case 2:   // Operating mode
+    switch(cmd.at(0).toLatin1()) {
+    case 'B':  // Bypass
+      state=Cunctator::StateBypassed;
+      break;
+
+    case 'H':  // Static
+      state=Cunctator::StateEntered;
+      break;
+
+    case 'I':  // Panic
+      break;
+
+    case 'L':  // Live
+      state=Cunctator::StateExited;
+      break;
+
+    case 'M':  // Mute
+      break;
+
+    case 'P':  // Micro precision delay
+      break;
+
+    case 'R':  // Rebuild
+    case 'W':  // Wait for safe
+      state=Cunctator::StateEntering;
+      break;
+
+    case 'S':  // Sneeze
+      break;
+    case 'Z':  // Ramp to zero
+    case 'A':  // Wait and exit
+      state=Cunctator::StateExiting;
+      break;
+    }
+    if(state!=bd600_state) {
+      bd600_state=state;
+      emit delayStateChanged(id(),bd600_state,delayLength());
+    }
+    bd600_tty->write("T",1);
+    break;
+
+  default:
+    bd600_tty->write("M",1);
+    break;
+  }
   bd600_watchdog_timer->start(BD600_WATCHDOG_INCREMENT);
 }
