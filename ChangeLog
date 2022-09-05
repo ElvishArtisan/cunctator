@@ -123,3 +123,5 @@
 	watchdog reconnects.
 2022-09-05 Fred Gleason <fredg@paravelsystems.com>
 	* Converted the codebase to use Systemd.
+2022-09-05 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed regressions that broke the 'make rpm' target.

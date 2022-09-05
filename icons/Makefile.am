@@ -20,8 +20,25 @@
 ##
 ## Use automake to process this into a Makefile.in
 
-EXTRA_DIST = cunc-16x16.xpm\
+install-exec-am:	
+	mkdir -p $(DESTDIR)@prefix@/share/icons/hicolor/16x16/apps
+	cp cunc-16x16.png $(DESTDIR)@prefix@/share/icons/hicolor/16x16/apps/cunc.png
+	mkdir -p $(DESTDIR)@prefix@/share/icons/hicolor/32x32/apps
+	cp cunc-32x32.png $(DESTDIR)@prefix@/share/icons/hicolor/32x32/apps/cunc.png
+	mkdir -p $(DESTDIR)@prefix@/share/icons/hicolor/48x48/apps
+	cp cunc-48x48.png $(DESTDIR)@prefix@/share/icons/hicolor/48x48/apps/cunc.png
+
+
+uninstall-local:	
+	rm -f $(DESTDIR)@prefix@/share/icons/hicolor/16x16/apps/cunc.png
+	rm -f $(DESTDIR)@prefix@/share/icons/hicolor/32x32/apps/cunc.png
+	rm -f $(DESTDIR)@prefix@/share/icons/hicolor/48x48/apps/cunc.png
+
+EXTRA_DIST = cunc-16x16.png\
+             cunc-16x16.xpm\
+             cunc-32x32.png\
              cunc-32x32.xpm\
+             cunc-48x48.png\
              cunc-48x48.xpm
 
 CLEANFILES = *~

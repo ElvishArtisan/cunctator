@@ -3,6 +3,7 @@
 *.lo
 *.o
 *.rpm
+*.service
 *.spec
 *.tar.gz
 .deps

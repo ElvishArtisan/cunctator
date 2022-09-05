@@ -1,6 +1,6 @@
 ## cunctator.spec.in
 ##
-##    Copyright (C) 2011  Fred Gleason <fredg@paravelsystems.com>
+##    Copyright (C) 2011-2022  Fred Gleason <fredg@paravelsystems.com>
 ##
 ##    This program is free software; you can redistribute it and/or modify
 ##    it under the terms of version 2 of the GNU General Public License as
@@ -27,36 +27,19 @@ Source: cunctator-@VERSION@.tar.gz
 BuildRoot: /var/tmp/cunctator-@VERSION@
 
 %description
-Cunctator is a system for controlling broad audio delay units, such as the
-AirTools 6100 and Eventide BD600.
+Cunctator is a system for controlling broadcast audio delay units, such as
+the AirTools 6100 and Eventide BD600.
 
 %prep
 %setup
-./configure --prefix=@LOCAL_PREFIX@
+%configure
 
 %build
-make
+make -j @CPUS_AVAIL@
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT@LOCAL_PREFIX@/%{_lib}
-cp lib/.libs/libcunc-@VERSION@.so $RPM_BUILD_ROOT@LOCAL_PREFIX@/%{_lib}/
-ln -s @LOCAL_PREFIX@/%{_lib}/libcunc-@VERSION@.so $RPM_BUILD_ROOT@LOCAL_PREFIX@/%{_lib}/libcunc.so
-cp lib/.libs/libcunc.la $RPM_BUILD_ROOT@LOCAL_PREFIX@/%{_lib}/
-mkdir -p $RPM_BUILD_ROOT@LOCAL_PREFIX@/sbin
-cp cuncd/.libs/cuncd $RPM_BUILD_ROOT@LOCAL_PREFIX@/sbin/
-mkdir -p $RPM_BUILD_ROOT@LOCAL_PREFIX@/bin
-cp cunc/.libs/cunc $RPM_BUILD_ROOT@LOCAL_PREFIX@/bin/
-mkdir -p $RPM_BUILD_ROOT/etc/init.d
-cp rc.cuncd $RPM_BUILD_ROOT/etc/init.d/cuncd
-mkdir -p $RPM_BUILD_ROOT/usr/share/icons/hicolor/16x16/apps
-cp icons/cunc-16x16.xpm $RPM_BUILD_ROOT/usr/share/icons/hicolor/16x16/apps/cunc.xpm
-mkdir -p $RPM_BUILD_ROOT/usr/share/icons/hicolor/32x32/apps
-cp icons/cunc-32x32.xpm $RPM_BUILD_ROOT/usr/share/icons/hicolor/32x32/apps/cunc.xpm
-mkdir -p $RPM_BUILD_ROOT/usr/share/icons/hicolor/48x48/apps
-cp icons/cunc-48x48.xpm $RPM_BUILD_ROOT/usr/share/icons/hicolor/48x48/apps/cunc.xpm
-mkdir -p $RPM_BUILD_ROOT/usr/share/applications
-cp xdg/cunctator_cunc.desktop $RPM_BUILD_ROOT/usr/share/applications/
+make install DESTDIR=$RPM_BUILD_ROOT
 
 %post
 ldconfig
@@ -69,44 +52,29 @@ fi
 if test ! -e /etc/cunctator.conf ; then
   cp $PACKAGE_DOC_DIR/cunctator.conf-sample /etc/cunctator.conf
 fi
-/etc/init.d/cuncd restart
-if test "@DISTRO@" = "suse" ; then
-  insserv -d -f /etc/init.d/cuncd
-fi
-if test "@DISTRO@" = "redhat" ; then
-  chkconfig --add cuncd
-  chkconfig --levels 235 cuncd on
-fi
-exit 0
+/bin/systemctl restart cunctator
+/bin/systemctl enable cunctator
 
 %preun
-if test "$1" = "0" ; then
-  /etc/init.d/cuncd stop
-  if test "@DISTRO@" = "suse" ; then
-    insserv -r -d -f /etc/init.d/cuncd
-  fi
-  if test "@DISTRO@" = "redhat" ; then
-    chkconfig --levels 35 cuncd off
-    chkconfig --del cuncd
-  fi
-fi
-exit 0
+/bin/systemctl disable cunctator
+/bin/systemctl stop cunctator
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-@LOCAL_PREFIX@/%{_lib}/libcunc-@VERSION@.so
-@LOCAL_PREFIX@/%{_lib}/libcunc.so
-@LOCAL_PREFIX@/%{_lib}/libcunc.la
-@LOCAL_PREFIX@/sbin/cuncd
-@LOCAL_PREFIX@/bin/cunc
-/etc/init.d/cuncd
-/usr/share/icons/hicolor/16x16/apps/cunc.xpm
-/usr/share/icons/hicolor/32x32/apps/cunc.xpm
-/usr/share/icons/hicolor/48x48/apps/cunc.xpm
-/usr/share/applications/cunctator_cunc.desktop
+%{_libdir}/libcunc-@VERSION@.so
+%{_libdir}/libcunc.so
+%{_libdir}/libcunc.la
+%{_libdir}/libcunc.a
+%{_sbindir}/cuncd
+%{_bindir}/cunc
+%{_datadir}/icons/hicolor/16x16/apps/cunc.png
+%{_datadir}/icons/hicolor/32x32/apps/cunc.png
+%{_datadir}/icons/hicolor/48x48/apps/cunc.png
+%{_datadir}/applications/cunctator_cunc.desktop
+/lib/systemd/system/cunctator.service
 %doc conf/cunctator.conf-sample
 %doc conf/cunctator.conf-callcommander
 %doc README
@@ -114,6 +82,8 @@ rm -rf $RPM_BUILD_ROOT
 %doc ChangeLog
 
 %changelog
+* Mon Sep  5 2022 Fred Gleason <fgleason@paravelsystems.com>
+-- Modified for Systemd.
 * Fri Aug 05 2011 Fred Gleason <fgleason@paravelsystems.com>
 -- Added 'cunctator.conf-callcommander'.
 * Wed Mar 16 2011 Fred Gleason <fgleason@paravelsystems.com>
