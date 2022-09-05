@@ -125,3 +125,6 @@
 	* Converted the codebase to use Systemd.
 2022-09-05 Fred Gleason <fredg@paravelsystems.com>
 	* Fixed regressions that broke the 'make rpm' target.
+2022-09-05 Fred Gleason <fredg@paravelsystems.com>
+	* Refactored 'configure.ac' to use the 'AC_OUTPUT()' macro with
+	no arguments.

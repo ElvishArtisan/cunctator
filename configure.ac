@@ -132,7 +132,7 @@ GENERATED_SCRIPT_FILE_WARNING=$srcdir/helpers/script_file_warning
 AC_SUBST_FILE(GENERATED_XML_FILE_WARNING)
 GENERATED_XML_FILE_WARNING=$srcdir/helpers/xml_file_warning
 
-AC_OUTPUT( \
+AC_CONFIG_FILES( \
   helpers/Makefile \
   lib/Makefile \
   cuncd/Makefile \
@@ -145,4 +145,9 @@ AC_OUTPUT( \
   xdg/Makefile \
   cunctator.spec \
   Makefile \
-) 
+)
+AC_OUTPUT()
+
+AC_MSG_NOTICE()
+AC_MSG_NOTICE(Now enter 'make' to build the software.)
+AC_MSG_NOTICE()
