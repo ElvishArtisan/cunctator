@@ -144,7 +144,10 @@ void Bd600::watchdogData()
     bd600_delay_length=0;
     emit delayStateChanged(id(),bd600_state,delayLength());
   }
-  bd600_tty->write("M",1);
+  bd600_tty->close();
+  if(connect()) {
+    bd600_tty->write("M",1);
+  }
   bd600_watchdog_timer->start(BD600_WATCHDOG_INCREMENT);
 }
 

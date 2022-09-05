@@ -118,3 +118,6 @@
 2022-09-05 Fred Gleason <fredg@paravelsystems.com>
 	* Fixed a regression in the BD-600 driver that caused the current
 	delay value to be intermittently detected.
+2022-09-05 Fred Gleason <fredg@paravelsystems.com>
+	* Modified the BD-600 to re-open() the serial device when attempting
+	watchdog reconnects.
