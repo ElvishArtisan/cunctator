@@ -27,8 +27,6 @@ MOC = @QT5_MOC@
 moc_%.cpp:	%.h
 	@MOC@ $< -o $@
 
-instdir = @LOCAL_PREFIX@/lib
-
 lib_LTLIBRARIES = libcunc.la
 dist_libcunc_la_SOURCES = cmdswitch.cpp cmdswitch.h\
                           profile.cpp profile.h\

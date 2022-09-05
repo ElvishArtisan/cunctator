@@ -27,20 +27,10 @@ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_CONFIG_MACRO_DIR([m4])
 
 #
-# Some Fully Resolved Install Paths
-# (for the packaging system and friends)
-#
-if test ${prefix} = "NONE" ; then
-  AC_SUBST(LOCAL_PREFIX,/usr/local)
-else
-  AC_SUBST(LOCAL_PREFIX,${prefix})
-fi
-
-#
 # Basic Compiler Checks
 #
 AC_PROG_CXX
-AC_PROG_LIBTOOL
+LT_INIT
 AC_LANG(C++)
 
 # to avoid rpath usage :

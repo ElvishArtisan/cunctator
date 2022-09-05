@@ -128,3 +128,5 @@
 2022-09-05 Fred Gleason <fredg@paravelsystems.com>
 	* Refactored 'configure.ac' to use the 'AC_OUTPUT()' macro with
 	no arguments.
+2022-09-05 Fred Gleason <fredg@paravelsystems.com>
+	* Refactored 'configure.ac' to use the 'LT_INIT()' macro.
