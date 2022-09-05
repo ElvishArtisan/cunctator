@@ -88,12 +88,12 @@ PKG_CHECK_MODULES([JACK],[jack],[],[AC_MSG_ERROR([*** JACK not found ***])])
 #
 # Check for SoundTouch
 #
-PKG_CHECK_MODULES([SOUNDTOUCH],[libSoundTouch],[],[AC_MSG_ERROR([*** SoundTouch not found ***])])
+AC_CHECK_HEADER(soundtouch/SoundTouch.h,[],[AC_MSG_ERROR([*** SoundTouch not found ***])])
 
 #
 # Generate Library List
 #
-AC_SUBST(CUNC_LIBS,"-lcunc")
+AC_SUBST(CUNC_LIBS,"-lSoundTouch -lcunc")
 
 #
 # Configure RPM Build

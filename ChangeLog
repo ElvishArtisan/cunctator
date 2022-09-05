@@ -132,3 +132,5 @@
 	* Refactored 'configure.ac' to use the 'LT_INIT()' macro.
 2022-09-05 Fred Gleason <fredg@paravelsystems.com>
 	* Refactored 'configure.ac' to use the 'PKG_CHECK_MODULES()' macro.
+2022-09-05 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed a regression in 'configure.ac' that broke the build.
