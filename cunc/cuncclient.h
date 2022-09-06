@@ -23,6 +23,7 @@
 
 #include <QApplication>
 #include <QLabel>
+#include <QLCDNumber>
 #include <QMainWindow>
 #include <QTcpSocket>
 #include <QTimer>
@@ -49,7 +50,9 @@ class MainWidget : public QMainWindow
   void socketClosedData();
   void readyReadData();
   void errorData(QAbstractSocket::SocketError err);
-  
+
+ protected:
+  void resizeEvent(QResizeEvent *e);
 
  private:
   void ProcessCommand(const QString &msg);
@@ -57,7 +60,8 @@ class MainWidget : public QMainWindow
   PushButton *cunc_enter_button;
   PushButton *cunc_exit_button;
   PushButton *cunc_dump_button;
-  QLabel *cunc_delay_label;
+  //  QLabel *cunc_delay_label;
+  QLCDNumber *cunc_delay_lcd;
   QTcpSocket *cunc_socket;
   QString cunc_buffer;
   unsigned cunc_delay_id;

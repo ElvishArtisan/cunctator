@@ -101,7 +101,6 @@ MainWidget::MainWidget(QWidget *parent)
   // Enter Button
   //
   cunc_enter_button=new PushButton(tr("Start"),this);
-  cunc_enter_button->setGeometry(10,10,80,50);
   cunc_enter_button->setFont(button_font);
   connect(cunc_enter_button,SIGNAL(clicked()),this,SLOT(enterPushed()));
 
@@ -109,24 +108,19 @@ MainWidget::MainWidget(QWidget *parent)
   // Exit Button
   //
   cunc_exit_button=new PushButton(tr("Exit"),this);
-  cunc_exit_button->setGeometry(100,10,80,50);
   cunc_exit_button->setFont(button_font);
   connect(cunc_exit_button,SIGNAL(clicked()),this,SLOT(exitPushed()));
 
   //
   // Delay Time Display
   //
-  cunc_delay_label=new QLabel(this);
-  cunc_delay_label->setGeometry(200,10,120,50);
-  cunc_delay_label->setFont(label_font);
-  cunc_delay_label->setAlignment(Qt::AlignCenter);
-  cunc_delay_label->setFrameStyle(QFrame::Box|QFrame::Raised);
+  cunc_delay_lcd=new QLCDNumber(5,this);
+  cunc_delay_lcd->setStyleSheet("color: red;background-color: black;");
 
   //
   // Dump Button
   //
   cunc_dump_button=new PushButton(tr("Dump"),this);
-  cunc_dump_button->setGeometry(340,10,80,50);
   cunc_dump_button->setFont(button_font);
   cunc_dump_button->setFlashColor(Qt::red);
   connect(cunc_dump_button,SIGNAL(clicked()),this,SLOT(dumpPushed()));
@@ -207,6 +201,7 @@ void MainWidget::readyReadData()
   char data[1500];
 
   while((n=cunc_socket->read(data,1500))>0) {
+    data[n]=0;
     for(int i=0;i<n;i++) {
       if(isprint(data[i])) {
 	if(data[i]=='!') {
@@ -244,10 +239,17 @@ void MainWidget::errorData(QAbstractSocket::SocketError err)
 }
 
 
+void MainWidget::resizeEvent(QResizeEvent *e)
+{
+  cunc_enter_button->setGeometry(10,10,80,50);
+  cunc_exit_button->setGeometry(100,10,80,50);
+  cunc_delay_lcd->setGeometry(200,10,120,50);
+  cunc_dump_button->setGeometry(340,10,80,50);
+}
+
+
 void MainWidget::ProcessCommand(const QString &msg)
 {
-  //printf("msg: %s\n",(const char *)msg);
-
   QStringList cmds=msg.split(" ",QString::SkipEmptyParts);
   bool ok;
   unsigned id;
@@ -272,8 +274,10 @@ void MainWidget::ProcessCommand(const QString &msg)
 				   Cunctator::StateBypassed);
     cunc_dump_button->setDisabled((Cunctator::DelayState)cmds[2].toInt()==
 				   Cunctator::StateBypassed);
-    cunc_delay_label->setDisabled((Cunctator::DelayState)cmds[2].toInt()==
-				  Cunctator::StateBypassed);
+    //    cunc_delay_label->setDisabled((Cunctator::DelayState)cmds[2].toInt()==
+    //    				  Cunctator::StateBypassed);
+    cunc_delay_lcd->setDisabled((Cunctator::DelayState)cmds[2].toInt()==
+				Cunctator::StateBypassed);
     switch((Cunctator::DelayState)cmds[2].toInt()) {
     case Cunctator::StateBypassed:
     case Cunctator::StateEntered:
@@ -303,9 +307,8 @@ void MainWidget::ProcessCommand(const QString &msg)
     if(!ok) {
       return;
     }
-    //cunc_delay_lcd->display(delay_len/1000);
-    cunc_delay_label->
-      setText(QString().sprintf("%4.1f",(float)delay_len/1000.0));
+    cunc_delay_lcd->
+      display(QString::asprintf("%4.2lf",(double)delay_len/1000.0));
   }
 
   if(cmds[0]=="DP") {   // Delay Dump
