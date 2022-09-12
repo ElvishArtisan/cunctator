@@ -11,6 +11,7 @@ ExecStart=@prefix@/sbin/cuncd
 TimeoutStopSec=10
 PrivateTmp=true
 Restart=always
+Environment=JACK_PROMISCUOUS_SERVER=audio
 
 [Install]
 WantedBy=multi-user.target

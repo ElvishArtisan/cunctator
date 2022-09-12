@@ -143,3 +143,6 @@
 	* Updated the look of the front panel of cunc(1).
 2022-09-12 Fred Gleason <fredg@paravelsystems.com>
 	* Removed unnecessary signal handlers from cuncd(8).
+2022-09-12 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed a bug in the Systemd configuration that prevented cuncd(8)
+	from connecting to jackd(1).
