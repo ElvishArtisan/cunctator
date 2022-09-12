@@ -43,29 +43,6 @@
 #include "globals.h"
 #include "cuncd.h"
 
-void SigHandler(int signo)
-{
-  pid_t pLocalPid;
-
-  switch(signo) {
-  case SIGCHLD:
-    pLocalPid=waitpid(-1,NULL,WNOHANG);
-    while(pLocalPid>0) {
-      pLocalPid=waitpid(-1,NULL,WNOHANG);
-    }
-    ::signal(SIGCHLD,SigHandler);
-    ::signal(SIGTERM,SigHandler);
-    ::signal(SIGINT,SigHandler);
-    return;
-
-  case SIGTERM:
-  case SIGINT:
-    unlink(CUNCD_PID_FILE);
-    exit(0);
-  }
-}
-
-
 MainObject::MainObject(QObject *parent)
   :QObject(parent)
 {
@@ -94,6 +71,7 @@ MainObject::MainObject(QObject *parent)
   else {
     openlog("cuncd",0,LOG_DAEMON);
   }
+  syslog(LOG_NOTICE,"log opened");
 
   //
   // Load Local Configs
@@ -101,13 +79,6 @@ MainObject::MainObject(QObject *parent)
   cuncd_config=new CuncConfig(CUNC_CONF_FILE,debug);
   cuncd_config->load();
   cuncd_config->dumpConfig(stdout);
-
-  //
-  // Configure Signals
-  //
-  ::signal(SIGCHLD,SigHandler);
-  ::signal(SIGTERM,SigHandler);
-  ::signal(SIGINT,SigHandler);
 
   //
   // Write PID File

@@ -141,3 +141,5 @@
 	* Refactored build clean rules.
 2022-09-05 Fred Gleason <fredg@paravelsystems.com>
 	* Updated the look of the front panel of cunc(1).
+2022-09-12 Fred Gleason <fredg@paravelsystems.com>
+	* Removed unnecessary signal handlers from cuncd(8).
