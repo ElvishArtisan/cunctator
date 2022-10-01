@@ -1,1 +1,10 @@
-This is the NEWS file for the Cunctator package.
+The NEWS file for the Cunctator package.
+
+-------------------------------------------------------------------------------
+v2.0.0 -- 1 October 2022
+
+Changes:
+
+    Qt Toolkit. Updated the Qt dependency to use Qt5.
+-------------------------------------------------------------------------------
+
