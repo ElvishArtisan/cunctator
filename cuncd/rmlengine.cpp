@@ -67,7 +67,7 @@ void RmlEngine::sendDelayLength()
 {
   QString cmd;
 
-  for(unsigned i=0;i<rml_on_delay_change_addresses.size();i++) {
+  for(int i=0;i<rml_on_delay_change_addresses.size();i++) {
     cmd=ResolveCommand(rml_on_delay_change_commands[i]);
     rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
 			      rml_on_delay_change_addresses[i],
@@ -82,7 +82,7 @@ void RmlEngine::sendDelayState(int n,Cunctator::DelayState state,int len)
 
   if(len!=rml_delay_length) {
     rml_delay_length=len;
-    for(unsigned i=0;i<rml_on_delay_change_addresses.size();i++) {
+    for(int i=0;i<rml_on_delay_change_addresses.size();i++) {
       cmd=ResolveCommand(rml_on_delay_change_commands[i]);
       rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
 			     rml_on_delay_change_addresses[i],
@@ -90,7 +90,7 @@ void RmlEngine::sendDelayState(int n,Cunctator::DelayState state,int len)
     }
   }
   if((state==Cunctator::StateBypassed)&&(state!=rml_delay_state)) {
-    for(unsigned i=0;i<rml_on_bypassed_addresses.size();i++) {
+    for(int i=0;i<rml_on_bypassed_addresses.size();i++) {
       cmd=ResolveCommand(rml_on_bypassed_commands[i]);
       rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
 				rml_on_bypassed_addresses[i],
@@ -98,7 +98,7 @@ void RmlEngine::sendDelayState(int n,Cunctator::DelayState state,int len)
     }
   }
   if((state==Cunctator::StateEntering)&&(state!=rml_delay_state)) {
-    for(unsigned i=0;i<rml_on_entering_addresses.size();i++) {
+    for(int i=0;i<rml_on_entering_addresses.size();i++) {
       cmd=ResolveCommand(rml_on_entering_commands[i]);
       rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
 				rml_on_entering_addresses[i],
@@ -106,7 +106,7 @@ void RmlEngine::sendDelayState(int n,Cunctator::DelayState state,int len)
     }
   }
   if((state==Cunctator::StateEntered)&&(state!=rml_delay_state)) {
-    for(unsigned i=0;i<rml_on_entering_addresses.size();i++) {
+    for(int i=0;i<rml_on_entering_addresses.size();i++) {
       cmd=ResolveCommand(rml_on_entered_commands[i]);
       rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
 			     rml_on_entered_addresses[i],
@@ -114,7 +114,7 @@ void RmlEngine::sendDelayState(int n,Cunctator::DelayState state,int len)
     }
   }
   if((state==Cunctator::StateExiting)&&(state!=rml_delay_state)) {
-    for(unsigned i=0;i<rml_on_exiting_addresses.size();i++) {
+    for(int i=0;i<rml_on_exiting_addresses.size();i++) {
       cmd=ResolveCommand(rml_on_exiting_commands[i]);
       rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
 			     rml_on_exiting_addresses[i],
@@ -122,7 +122,7 @@ void RmlEngine::sendDelayState(int n,Cunctator::DelayState state,int len)
     }
   }
   if((state==Cunctator::StateExited)&&(state!=rml_delay_state)) {
-    for(unsigned i=0;i<rml_on_exited_addresses.size();i++) {
+    for(int i=0;i<rml_on_exited_addresses.size();i++) {
       cmd=ResolveCommand(rml_on_exited_commands[i]);
       rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
 				rml_on_exited_addresses[i],
@@ -137,7 +137,7 @@ void RmlEngine::sendDelayDumped(int n)
 {
   QString cmd;
 
-  for(unsigned i=0;i<rml_on_dump_addresses.size();i++) {
+  for(int i=0;i<rml_on_dump_addresses.size();i++) {
     cmd=ResolveCommand(rml_on_dump_commands[i]);
     rml_socket->writeDatagram(cmd.toUtf8(),cmd.toUtf8().length(),
 			      rml_on_dump_addresses[i],
@@ -149,29 +149,29 @@ void RmlEngine::sendDelayDumped(int n)
 QString RmlEngine::ResolveCommand(const QString &cmd) const
 {
   QString ret=cmd;
-  ret.replace("%d",QString().sprintf("%4.1f",(float)rml_delay_length/1000.0));
+  ret.replace("%d",QString::asprintf("%4.1f",(float)rml_delay_length/1000.0));
   return ret;
 }
 
 
 void RmlEngine::LoadStack(Profile *p,int id,const QString &tag,
-			  std::vector<QHostAddress> *addrs,
-			  std::vector<uint16_t> *ports,
-			  std::vector<QString> *cmds)
+			  QList<QHostAddress> *addrs,
+			  QList<uint16_t> *ports,
+			  QList<QString> *cmds)
 {
   QHostAddress addr;
   int count=1;
-  QString section=QString().sprintf("Delay%d",id);
-  QString label=tag+QString().sprintf("Address%d",count);
+  QString section=QString::asprintf("Delay%d",id);
+  QString label=tag+QString::asprintf("Address%d",count);
 
   bool ok=addr.setAddress(p->stringValue(section,label));
   while(ok) {
     addrs->push_back(addr);
     cmds->push_back(p->stringValue(section,
-				   tag+QString().sprintf("Command%d",count)));
+				   tag+QString::asprintf("Command%d",count)));
     ports->push_back(p->intValue(section,
-				 tag+QString().sprintf("Port%d",count)));
-    label=tag+QString().sprintf("Address%d",++count);
+				 tag+QString::asprintf("Port%d",count)));
+    label=tag+QString::asprintf("Address%d",++count);
     ok=addr.setAddress(p->stringValue(section,label));
   }
 }

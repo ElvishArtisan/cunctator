@@ -196,7 +196,7 @@ void MainObject::rmlReceivedData()
 
 Connection *MainObject::GetConnection(int id) const
 {
-  for(unsigned i=0;i<cuncd_connections.size();i++) {
+  for(int i=0;i<cuncd_connections.size();i++) {
     if(cuncd_connections[i]->id()==id) {
       return cuncd_connections[i];
     }

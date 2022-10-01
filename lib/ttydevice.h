@@ -25,9 +25,8 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include <queue>
-
 #include <QIODevice>
+#include <QQueue>
 #include <QSocketNotifier>
 #include <QTimer>
 
@@ -92,7 +91,7 @@ class TTYDevice : public QIODevice
   int tty_fd;
   speed_t tty_speed;
   tcflag_t tty_length;
-  std::queue<char> tty_write_queue;
+  QQueue<char> tty_write_queue;
   QTimer *tty_write_timer;
   QSocketNotifier *tty_notifier;
 };

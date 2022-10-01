@@ -84,7 +84,7 @@ void ProfileSection::setName(QString name)
 
 bool ProfileSection::getValue(QString tag,QString *value) const
 {
-  for(unsigned i=0;i<section_line.size();i++) {
+  for(int i=0;i<section_line.size();i++) {
     if(section_line[i].tag()==tag) {
       *value=section_line[i].value();
       return true;
@@ -105,7 +105,7 @@ void ProfileSection::addValue(QString tag,QString value)
 void ProfileSection::clear()
 {
   section_name="";
-  section_line.resize(0);
+  section_line.clear();
 }
 
 
@@ -129,7 +129,7 @@ bool Profile::setSource(const QString &filename)
   int offset;
 
   profile_source=filename;
-  profile_section.resize(0);
+  profile_section.clear();
   profile_section.push_back(ProfileSection());
   profile_section.back().setName("");
   QFile *file=new QFile(filename);
@@ -167,7 +167,7 @@ void Profile::setSourceString(const QString &str)
   int offset;
 
   profile_source="";
-  profile_section.resize(0);
+  profile_section.clear();
   profile_section.push_back(ProfileSection());
   profile_section.back().setName("");
   lines=str.split("\n");
@@ -194,7 +194,7 @@ QString Profile::stringValue(QString section,QString tag,
 {
   QString result;
 
-  for(unsigned i=0;i<profile_section.size();i++) {
+  for(int i=0;i<profile_section.size();i++) {
     if(profile_section[i].name()==section) {
       if(profile_section[i].getValue(tag,&result)) {
 	if(ok!=NULL) {
@@ -329,5 +329,5 @@ bool Profile::boolValue(QString section,QString tag,
 void Profile::clear()
 {
   profile_source="";
-  profile_section.resize(0);
+  profile_section.clear();
 }

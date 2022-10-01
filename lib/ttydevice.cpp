@@ -581,7 +581,7 @@ qint64 TTYDevice::readData(char *data,qint64 maxlen)
 qint64 TTYDevice::writeData(const char *data,qint64 len)
 {
   for(qint64 i=0;i<len;i++) {
-    tty_write_queue.push(data[i]);
+    tty_write_queue.enqueue(data[i]);
   }
   emit bytesWritten(len);
   return len;
@@ -610,8 +610,7 @@ void TTYDevice::writeTtyData()
   }
 
   for(ssize_t i=0;i<n;i++) {
-    data[i]=tty_write_queue.front();
-    tty_write_queue.pop();
+    data[i]=tty_write_queue.dequeue();
   }
   if((s=::write(tty_fd,data,n))!=n) {
     syslog(LOG_WARNING,"TTYDevice::writeTtyData write lost %c bytes",n-s);

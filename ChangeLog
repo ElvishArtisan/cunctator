@@ -148,3 +148,6 @@
 	from connecting to jackd(1).
 2022-10-01 Fred Gleason <fredg@paravelsystems.com>
 	* Debianized the package.
+2022-10-01 Fred Gleason <fredg@paravelsystems.com>
+	* Removed all explicit STL dependencies.
+	* Removed numerous build warnings.

@@ -21,8 +21,7 @@
 #ifndef CUNCCONFIG_H
 #define CUNCCONFIG_H
 
-#include <vector>
-
+#include <QList>
 #include <QObject>
 
 #include <cunc.h>
@@ -67,9 +66,9 @@ class CuncConfig : public QObject
 
  private:
   unsigned conf_tcp_port;
-  std::vector<Delay *> conf_delays;
-  std::vector<RmlEngine *> conf_rml_engines;
-  std::vector<UdpQueue *> conf_udp_queues;
+  QList<Delay *> conf_delays;
+  QList<RmlEngine *> conf_rml_engines;
+  QList<UdpQueue *> conf_udp_queues;
   QString conf_filename;
   bool conf_debug;
 };

@@ -2,7 +2,7 @@
 //
 // Utility for controlling broadcast delays.
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -60,7 +60,6 @@ class MainWidget : public QMainWindow
   PushButton *cunc_enter_button;
   PushButton *cunc_exit_button;
   PushButton *cunc_dump_button;
-  //  QLabel *cunc_delay_label;
   QLCDNumber *cunc_delay_lcd;
   QTcpSocket *cunc_socket;
   QString cunc_buffer;

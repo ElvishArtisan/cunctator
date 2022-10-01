@@ -31,7 +31,7 @@ Bd600::Bd600(Profile *p,int n,bool debug,QObject *parent)
   //
   // Open the TTY
   //
-  QString section=QString().sprintf("Delay%u",n+1);
+  QString section=QString::asprintf("Delay%u",n+1);
   bd600_tty=new TTYDevice();
   bd600_tty->setName(p->stringValue(section,"TtyDevice","/dev/ttyS0"));
   bd600_tty->setSpeed(p->intValue(section,"TtySpeed",9600));

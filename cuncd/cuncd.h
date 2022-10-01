@@ -21,8 +21,7 @@
 #ifndef CUNCD_H
 #define CUNCD_H
 
-#include <vector>
-
+#include <QList>
 #include <QObject>
 #include <QTcpServer>
 #include <QUdpSocket>
@@ -51,7 +50,7 @@ class MainObject : public QObject
   Connection *GetConnection(int id) const;
   void ProcessRml(const QString &cmd);
   CuncConfig *cuncd_config;
-  std::vector<Connection *> cuncd_connections;
+  QList<Connection *> cuncd_connections;
   QTcpServer *cuncd_server;
   QUdpSocket *cuncd_rml_socket;
   bool debug;

@@ -57,15 +57,15 @@ UdpQueue::UdpQueue(Profile *p,int id,QObject *parent)
   //
   // CIC TTY Devices
   //
-  section=QString().sprintf("UdpQueue%d",id+1);
-  ttydev=p->stringValue(section,QString().sprintf("DestinationCicDevice%d",
+  section=QString::asprintf("UdpQueue%d",id+1);
+  ttydev=p->stringValue(section,QString::asprintf("DestinationCicDevice%d",
 						  count+1),"",&ok);
   while(ok) {
     queue_cic_buffers.push_back(QString(""));
     queue_cic_ttys.push_back(new TTYDevice());
     queue_cic_ttys.back()->setName(ttydev);
     queue_cic_ttys.back()->
-      setSpeed(p->intValue(section,QString().sprintf("DestinationCicSpeed%d",
+      setSpeed(p->intValue(section,QString::asprintf("DestinationCicSpeed%d",
 						     count+1),9600));
     if(queue_cic_ttys.back()->open(QIODevice::ReadWrite)) {
       connect(queue_cic_ttys.back(),SIGNAL(activated(int)),
@@ -108,9 +108,9 @@ void UdpQueue::delayDumped(int id)
 {
   if(queue_destructive_dump) {
     while(queue_udp_datas.size()>0) {
-      queue_udp_datas.pop();
-      queue_udp_lengths.pop();
-      queue_udp_timestamps.pop();
+      queue_udp_datas.dequeue();
+      queue_udp_lengths.dequeue();
+      queue_udp_timestamps.dequeue();
     }
   }    
 }
@@ -122,10 +122,10 @@ void UdpQueue::readyReadData()
   char data[1500];
 
   while((n=queue_socket->readDatagram(data,1500))>0) {
-    queue_udp_datas.push(new char[n]);
+    queue_udp_datas.enqueue(new char[n]);
     memcpy(queue_udp_datas.back(),data,n);
-    queue_udp_lengths.push(n);
-    queue_udp_timestamps.push(GetTimestamp());
+    queue_udp_lengths.enqueue(n);
+    queue_udp_timestamps.enqueue(GetTimestamp());
   } 
   if(!queue_udp_timer->isActive()) {
     queue_udp_timer->start(CUNC_UDP_QUEUE_POLL_INTERVAL);
@@ -138,7 +138,7 @@ void UdpQueue::cicReadData(int fd)
   int n;
   char data[1500];
 
-  for(unsigned i=0;i<queue_cic_ttys.size();i++) {
+  for(int i=0;i<queue_cic_ttys.size();i++) {
     if(queue_cic_ttys[i]->socketDescriptor()==fd) {
       while((n=queue_cic_ttys[i]->readBlock(data,1500))>0) {
 	for(int j=0;j<n;j++) {
@@ -168,9 +168,9 @@ void UdpQueue::checkQueueData()
     SendUdpPacket();
     SendCicPacket();
     delete queue_udp_datas.front();
-    queue_udp_datas.pop();
-    queue_udp_lengths.pop();
-    queue_udp_timestamps.pop();
+    queue_udp_datas.dequeue();
+    queue_udp_lengths.dequeue();
+    queue_udp_timestamps.dequeue();
   }
 
   if(queue_udp_datas.size()==0) {
@@ -181,7 +181,7 @@ void UdpQueue::checkQueueData()
 
 void UdpQueue::sendCicHeartbeatData()
 {
-  for(unsigned i=0;i<queue_cic_ttys.size();i++) {
+  for(int i=0;i<queue_cic_ttys.size();i++) {
     queue_cic_ttys[i]->write("login\r\n",7);
     queue_cic_ttys[i]->write("atdt\r\n",6);
     queue_cic_ttys[i]->write("PINGSEND\r\n",10);
@@ -191,7 +191,7 @@ void UdpQueue::sendCicHeartbeatData()
 
 void UdpQueue::SendUdpPacket()
 {
-  for(unsigned i=0;i<queue_destination_addresses.size();i++) {
+  for(int i=0;i<queue_destination_addresses.size();i++) {
     queue_socket->writeDatagram(queue_udp_datas.front(),
 				queue_udp_lengths.front(),
 				queue_destination_addresses[i],
@@ -214,8 +214,8 @@ void UdpQueue::SendCicPacket()
     return;
   }
   snprintf(pack,1500,"NC:%u:%s\r\n",GetCicChecksum(cic),cic);
-  for(unsigned i=0;i<queue_cic_ttys.size();i++) {
-    for(unsigned j=0;j<CUNC_CIC_PACKET_REPEAT_QUAN;j++) {
+  for(int i=0;i<queue_cic_ttys.size();i++) {
+    for(int j=0;j<CUNC_CIC_PACKET_REPEAT_QUAN;j++) {
       queue_cic_ttys[i]->write(pack,strlen(pack));
     }
   }
@@ -234,7 +234,7 @@ void UdpQueue::ProcessCicTty(unsigned id,const QString msg)
 
 bool UdpQueue::Load(Profile *p)
 {
-  QString section=QString().sprintf("UdpQueue%d",queue_id+1);
+  QString section=QString::asprintf("UdpQueue%d",queue_id+1);
   QHostAddress addr;
   int port;
   int delay;
@@ -256,7 +256,7 @@ bool UdpQueue::Load(Profile *p)
   bool ok=addr.setAddress(p->stringValue(section,
 			  QString::asprintf("DestinationAddress%d",count+1)));
   while(ok) {
-    port=p->intValue(section,QString().sprintf("DestinationPort%d",count+1),0);
+    port=p->intValue(section,QString::asprintf("DestinationPort%d",count+1),0);
     if((port>0)&&(port<0x10000)) {
       queue_destination_addresses.push_back(addr);
       queue_destination_ports.push_back(port);
@@ -287,7 +287,6 @@ double UdpQueue::GetTimestamp()
 
 bool UdpQueue::ValidateCicPacket(const QString &pack) const
 {
-  //  QStringList list=list.split(":",pack);
   QStringList f0=pack.split(":",QString::KeepEmptyParts);
   switch(f0.at(0).toUInt()) {
   case 0:

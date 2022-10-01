@@ -95,7 +95,7 @@ void CuncConfig::dumpConfig(FILE *stream)
   fprintf(stream,"TcpPort=%u\n",conf_tcp_port);
   fprintf(stream,"\n");
 
-  for(unsigned i=0;i<conf_delays.size();i++) {
+  for(int i=0;i<conf_delays.size();i++) {
     fprintf(stream,"[Delay%u]\n",i+1);
     switch(conf_delays[i]->type()) {
     case Cunctator::TypeUnknown:
@@ -129,7 +129,7 @@ bool CuncConfig::load()
   bool ok;
   QString str;
   bool added;
-  unsigned num;
+  int num;
 
   //
   // Host Name
@@ -148,8 +148,7 @@ bool CuncConfig::load()
   //
   // Delays
   //
-
-  section=QString().sprintf("Delay%u",count);
+  section=QString::asprintf("Delay%u",count);
   str=p->stringValue(section,"Type","Dummy",&ok);
   while(ok) {
     added=false;
@@ -184,7 +183,7 @@ bool CuncConfig::load()
       connect(conf_delays.back(),SIGNAL(dumped(int)),
 	      conf_rml_engines.back(),SLOT(sendDelayDumped(int)));
     }
-    section=QString().sprintf("Delay%u",++count);
+    section=QString::asprintf("Delay%u",++count);
     str=p->stringValue(section,"Type","Dummy",&ok);
   }
 
@@ -192,7 +191,7 @@ bool CuncConfig::load()
   // UDP Queues
   //
   count=1;
-  section=QString().sprintf("UdpQueue%u",count);
+  section=QString::asprintf("UdpQueue%u",count);
   num=p->intValue(section,"DelayNumber",0,&ok)-1;
   while(ok) {
     if(num<conf_delays.size()) {
@@ -210,7 +209,7 @@ bool CuncConfig::load()
 	     "DelayNumber entry is missing/invalid in [UdpQueue%u]",count);
       exit(1);
     }
-    section=QString().sprintf("UdpQueue%u",++count);
+    section=QString::asprintf("UdpQueue%u",++count);
     num=p->intValue(section,"DelayNumber",0,&ok)-1;
   }
 
@@ -222,11 +221,11 @@ bool CuncConfig::load()
 void CuncConfig::clear()
 {
   conf_tcp_port=CUNC_TCP_PORT;
-  for(unsigned i=0;i<conf_delays.size();i++) {
+  for(int i=0;i<conf_delays.size();i++) {
     delete conf_delays[i];
   }
   conf_delays.clear();
-  for(unsigned i=0;i<conf_udp_queues.size();i++) {
+  for(int i=0;i<conf_udp_queues.size();i++) {
     delete conf_udp_queues[i];
   }
   conf_udp_queues.clear();

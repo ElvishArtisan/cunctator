@@ -21,8 +21,7 @@
 #ifndef PROFILE_H
 #define PROFILE_H
 
-#include <vector>
-
+#include <QList>
 #include <QString>
 
 class ProfileLine
@@ -55,7 +54,7 @@ class ProfileSection
 
  private:
   QString section_name;
-  std::vector<ProfileLine> section_line;
+  QList<ProfileLine> section_line;
 };
 
 
@@ -94,7 +93,7 @@ class Profile
 
  private:
   QString profile_source;
-  std::vector<ProfileSection> profile_section;
+  QList<ProfileSection> profile_section;
 };
 
 

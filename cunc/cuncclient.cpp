@@ -156,21 +156,21 @@ QSizePolicy MainWidget::sizePolicy() const
 
 void MainWidget::enterPushed()
 {
-  SendCommand(QString().sprintf("SS %u %u!",cunc_delay_id,
+  SendCommand(QString::asprintf("SS %u %u!",cunc_delay_id,
 				Cunctator::StateEntering));
 }
 
 
 void MainWidget::exitPushed()
 {
-  SendCommand(QString().sprintf("SS %u %u!",cunc_delay_id,
+  SendCommand(QString::asprintf("SS %u %u!",cunc_delay_id,
 				Cunctator::StateExiting));
 }
 
 
 void MainWidget::dumpPushed()
 {
-  SendCommand(QString().sprintf("DP %u!",cunc_delay_id));
+  SendCommand(QString::asprintf("DP %u!",cunc_delay_id));
 }
 
 
@@ -182,8 +182,8 @@ void MainWidget::dumpFlashResetData()
 
 void MainWidget::socketConnectedData()
 {
-  SendCommand(QString().sprintf("DS %u!",cunc_delay_id));
-  SendCommand(QString().sprintf("DM %u!",cunc_delay_id));
+  SendCommand(QString::asprintf("DS %u!",cunc_delay_id));
+  SendCommand(QString::asprintf("DM %u!",cunc_delay_id));
 }
 
 

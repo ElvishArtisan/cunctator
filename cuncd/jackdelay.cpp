@@ -161,7 +161,7 @@ JackDelay::JackDelay(Profile *p,int id,bool debug,QObject *parent)
   //
   // Load Driver Settings
   //
-  QString section=QString().sprintf("Delay%d",id+1);
+  QString section=QString::asprintf("Delay%d",id+1);
   jd_audio_channels=
     p->intValue(section,"AudioChannels",JACKDELAY_DEFAULT_AUDIO_CHANNELS);
   jd_max_delay=
@@ -173,14 +173,14 @@ JackDelay::JackDelay(Profile *p,int id,bool debug,QObject *parent)
   unsigned cnt=0;
   bool ok=false;
   QString inname=
-    p->stringValue(section,QString().sprintf("JackSource%u",cnt+1),"",&ok);
+    p->stringValue(section,QString::asprintf("JackSource%u",cnt+1),"",&ok);
   while(ok) {
     jd_input_names.push_back(inname);
     jd_output_names.push_back(p->stringValue(section,
-	       QString().sprintf("JackDestination%u",cnt+1),"",&ok));
+	       QString::asprintf("JackDestination%u",cnt+1),"",&ok));
     cnt++;
     inname=
-      p->stringValue(section,QString().sprintf("JackSource%u",cnt+1),"",&ok);
+      p->stringValue(section,QString::asprintf("JackSource%u",cnt+1),"",&ok);
   }
 }
 
@@ -238,7 +238,7 @@ bool JackDelay::connect()
   // Initialize JACK
   //
   if((jd_client=
-      jack_client_open(QString().sprintf("%s_%u",JACKDELAY_CLIENT_NAME,id()+1).
+      jack_client_open(QString::asprintf("%s_%u",JACKDELAY_CLIENT_NAME,id()+1).
 		       toUtf8(),
 		       JackNullOption,&status,0))==NULL) {
     if((status&JackServerFailed)!=0) {
@@ -277,7 +277,7 @@ bool JackDelay::connect()
   jack_port_t *port=NULL;
   for(unsigned i=0;i<jd_audio_channels;i++) {
     if((port=jack_port_register(jd_client,
-				QString().sprintf("input_%u",i+1).toUtf8(),
+				QString::asprintf("input_%u",i+1).toUtf8(),
 				JACK_DEFAULT_AUDIO_TYPE,
 				JackPortIsInput,0))==NULL) {
       syslog(LOG_ERR,"no more JACK ports available");
@@ -289,7 +289,7 @@ bool JackDelay::connect()
     jd_input_ports.push_back(port);
 
     if((port=jack_port_register(jd_client,
-				QString().sprintf("output_%u",i+1).toUtf8(),
+				QString::asprintf("output_%u",i+1).toUtf8(),
 				JACK_DEFAULT_AUDIO_TYPE,
 				JackPortIsOutput,0))==NULL) {
       syslog(LOG_ERR,"no more JACK ports available");
@@ -315,7 +315,7 @@ bool JackDelay::connect()
   //
   // Connect Ports
   //
-  for(unsigned i=0;i<jd_input_names.size();i++) {
+  for(int i=0;i<jd_input_names.size();i++) {
     if((err=jack_connect(jd_client,jd_input_names[i].toUtf8(),
 			 jd_output_names[i].toUtf8()))!=0) {
       if(err!=EEXIST) {

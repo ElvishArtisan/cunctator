@@ -171,7 +171,7 @@ void CmdSwitch::setProcessed(unsigned n,bool state)
 
 bool CmdSwitch::allProcessed() const
 {
-  for(unsigned i=0;i<switch_processed.size();i++) {
+  for(int i=0;i<switch_processed.size();i++) {
     if(!switch_processed[i]) {
       return false;
     }

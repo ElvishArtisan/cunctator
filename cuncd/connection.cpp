@@ -52,7 +52,7 @@ bool Connection::isZombie() const
 
 void Connection::sendDelayQuantity(int n) const
 {
-  QString msg=QString().sprintf("DQ %d!",n);
+  QString msg=QString::asprintf("DQ %d!",n);
   conn_socket->write(msg.toUtf8(),msg.toUtf8().length());
 }
 
@@ -73,14 +73,14 @@ void Connection::sendDelayState(int id,int n,Cunctator::DelayState state,int len
   if((id>=0)&&(id!=conn_socket->socketDescriptor())) {
     return;
   }
-  QString msg=QString().sprintf("DS %d %d %d!",n,state,len);
+  QString msg=QString::asprintf("DS %d %d %d!",n,state,len);
   conn_socket->write(msg.toUtf8(),msg.toUtf8().length());
 }
 
 
 void Connection::sendDelayDumped(int n)
 {
-  QString msg=QString().sprintf("DP %d!",n);
+  QString msg=QString::asprintf("DP %d!",n);
   conn_socket->write(msg.toUtf8(),msg.toUtf8().length());
 }
 

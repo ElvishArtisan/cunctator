@@ -21,13 +21,13 @@
 #ifndef JACKDELAY_H
 #define JACKDELAY_H
 
-#include <vector>
-
 #include <jack/jack.h>
 #include <jack/ringbuffer.h>
 #include <soundtouch/SoundTouch.h>
 
-#include <qtimer.h>
+#include <QList>
+#include <QStringList>
+#include <QTimer>
 
 #include <ringbuffer.h>
 
@@ -78,10 +78,10 @@ class JackDelay : public Delay
    float jd_tempo;
    soundtouch::SoundTouch *jd_touch;
    Ringbuffer *jd_ring;
-   std::vector<jack_port_t *> jd_input_ports;
-   std::vector<jack_port_t *> jd_output_ports;
-   std::vector<QString> jd_input_names;
-   std::vector<QString> jd_output_names;
+   QList<jack_port_t *> jd_input_ports;
+   QList<jack_port_t *> jd_output_ports;
+   QList<QString> jd_input_names;
+   QStringList jd_output_names;
    jack_default_audio_sample_t *jd_buffer;
    QTimer *jd_scan_timer;
 

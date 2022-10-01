@@ -21,8 +21,8 @@
 #ifndef CMDSWITCH_H
 #define CMDSWITCH_H
 
-#include <vector>
-#include <qstring.h>
+#include <QList>
+#include <QStringList>
 
 class CmdSwitch
 {
@@ -39,9 +39,9 @@ class CmdSwitch
   bool debugActive() const;
 
  private:
-  std::vector<QString> switch_keys;
-  std::vector<QString> switch_values;
-  std::vector<bool> switch_processed;
+  QStringList switch_keys;
+  QStringList switch_values;
+  QList<bool> switch_processed;
   bool switch_debug;
 };
 

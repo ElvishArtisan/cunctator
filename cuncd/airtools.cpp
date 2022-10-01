@@ -27,7 +27,7 @@ AirTools::AirTools(Profile *p,int n,bool debug,QObject *parent)
   airtools_state=Cunctator::StateEntered;
   airtools_delay_length=0;
   airtools_msg_istate=0;
-  QString section=QString().sprintf("Delay%u",n+1);
+  QString section=QString::asprintf("Delay%u",n+1);
 
   airtools_tty=new TTYDevice();
   airtools_tty->setName(p->stringValue(section,"TtyDevice","/dev/ttyS0"));

@@ -21,10 +21,9 @@
 #ifndef UDPQUEUE_H
 #define UDPQUEUE_H
 
-#include <vector>
-#include <queue>
-
 #include <QObject>
+#include <QList>
+#include <QQueue>
 #include <QTimer>
 #include <QUdpSocket>
 
@@ -60,19 +59,19 @@ class UdpQueue : public QUdpSocket
   unsigned GetCicChecksum(const QString &str) const;
   QUdpSocket *queue_socket;
   int queue_input_port;
-  std::vector<QHostAddress> queue_destination_addresses;
-  std::vector<int> queue_destination_ports;
-  std::vector<int> queue_fixed_delays;
-  std::vector<TTYDevice *> queue_cic_ttys;
-  std::vector<QString> queue_cic_buffers;
+  QList<QHostAddress> queue_destination_addresses;
+  QList<int> queue_destination_ports;
+  QList<int> queue_fixed_delays;
+  QList<TTYDevice *> queue_cic_ttys;
+  QStringList queue_cic_buffers;
   int delay_id;
   int queue_id;
   double queue_delay;
   double queue_fixed_delay;
   bool queue_destructive_dump;
-  std::queue<char *> queue_udp_datas;
-  std::queue<int> queue_udp_lengths;
-  std::queue<double> queue_udp_timestamps;
+  QQueue<char *> queue_udp_datas;
+  QQueue<int> queue_udp_lengths;
+  QQueue<double> queue_udp_timestamps;
   QTimer *queue_udp_timer;
 };
 
