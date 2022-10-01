@@ -1,4 +1,9 @@
 *~
+*.buildinfo
+*.changes
+*.deb
+*.ddeb
+*.dsc
 *.la
 *.lo
 *.o
@@ -6,6 +11,7 @@
 *.service
 *.spec
 *.tar.gz
+*.tar.xz
 .deps
 .libs
 aclocal.m4
