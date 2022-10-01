@@ -10,6 +10,7 @@
 .libs
 aclocal.m4
 autom4te.cache
+build_debs.sh
 compile
 config.guess
 config.log
@@ -27,3 +28,5 @@ missing
 moc_*
 cunc/cunc
 cuncd/cuncd
+debian/changelog
+debian/control
