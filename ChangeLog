@@ -146,3 +146,5 @@
 2022-09-12 Fred Gleason <fredg@paravelsystems.com>
 	* Fixed a bug in the Systemd configuration that prevented cuncd(8)
 	from connecting to jackd(1).
+2022-10-01 Fred Gleason <fredg@paravelsystems.com>
+	* Debianized the package.

@@ -25,6 +25,7 @@ SUBDIRS = helpers\
           cuncd\
           cunc\
           conf\
+          debian\
           docs\
           icons\
           systemd\
@@ -34,6 +35,9 @@ ACLOCAL_AMFLAGS = -I m4
 
 maintainer-clean-local:	
 	rm -rf m4
+
+deb:	dist
+	./build_debs.sh
 
 rpm:	dist
 	mkdir -p $(HOME)/rpmbuild/SOURCES
@@ -57,15 +61,25 @@ zip:	dist
 	rm -rf cunctator-@VERSION@
 
 CLEANFILES = *~\
-             *.tgz\
+             *.buildinfo\
+             *.changes\
+             *.ddeb\
+             *.deb\
+             *.dsc\
              *.mo\
              *.rpm\
+             *.tar.gz\
+             *.tar.xz\
+             *.tgz\
              *.zip\
-             moc_*
+             py-compile
+
 DISTCLEANFILES = *~\
                  *.spec\
                  *.spec\
-                 *.tar.gz
+                 *.tar.gz\
+                 build_debs.sh
+
 MAINTAINERCLEANFILES = *~\
                        aclocal.m4\
                        compile\
@@ -74,6 +88,7 @@ MAINTAINERCLEANFILES = *~\
                        configure\
                        depcomp\
                        install-sh\
+                       libtool\
                        ltmain.sh\
                        Makefile.in\
                        missing\

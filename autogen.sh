@@ -18,6 +18,15 @@
 ##    Boston, MA  02111-1307  USA
 ##
 
+#
+# Generate Debian packaging metadata
+#
+DATESTAMP=`date +%a,\ %d\ %b\ %Y\ %T\ %z`
+sed s/@VERSION@/`cat PACKAGE_VERSION`/ < debian/control.src > debian/control
+sed s/@VERSION@/`cat PACKAGE_VERSION`/ < debian/changelog.src | sed "s/@DATESTAMP@/$DATESTAMP/" > debian/changelog
+
+mkdir -p m4
+
 libtoolize --force 2>&1 | sed '/^You should/d' || {
     echo "libtool failed, exiting..."
     exit 1

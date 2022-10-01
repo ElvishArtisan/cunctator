@@ -128,15 +128,20 @@ AC_CONFIG_FILES( \
   cuncd/Makefile \
   cunc/Makefile \
   conf/Makefile \
+  debian/source/Makefile \
+  debian/Makefile \
   docs/Makefile \
   icons/Makefile \
   systemd/cunctator.service \
   systemd/Makefile \
   xdg/Makefile \
   cunctator.spec \
+  build_debs.sh \
   Makefile \
 )
 AC_OUTPUT()
+
+chmod 755 build_debs.sh
 
 AC_MSG_NOTICE()
 AC_MSG_NOTICE(Now enter 'make' to build the software.)
