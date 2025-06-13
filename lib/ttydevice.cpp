@@ -2,7 +2,7 @@
 //
 //   A Qt driver for tty ports.
 //
-//   (C) Copyright 2010-1021 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2010-2025 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Library General Public License 
@@ -211,10 +211,10 @@ qint64 TTYDevice::read(char *data,qint64 maxlen)
 QByteArray TTYDevice::read(qint64 maxlen)
 {
   qint64 n=0;
-  char *data=new char[maxlen];
+  char *data=(char *)malloc(maxlen);
   n=readData(data,maxlen);
   QByteArray ret(data,n);
-  delete data;
+  free(data);
   return ret;
 }
 
