@@ -2,7 +2,7 @@
 //
 // A container class for cuncd(8) connections.
 //
-//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2025 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -109,7 +109,7 @@ void Connection::readyReadData()
 
 void Connection::ProcessCommand(const QString &cmd)
 {
-  QStringList args=cmd.split(" ",QString::SkipEmptyParts);
+  QStringList args=cmd.split(" ",Qt::SkipEmptyParts);
   if(args.size()<1) {
     return;
   }

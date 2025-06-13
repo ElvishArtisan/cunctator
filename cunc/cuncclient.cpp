@@ -2,7 +2,7 @@
 //
 // Utility for controlling broadcast delays.
 //
-//   (C) Copyright 2011 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2025 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -250,7 +250,7 @@ void MainWidget::resizeEvent(QResizeEvent *e)
 
 void MainWidget::ProcessCommand(const QString &msg)
 {
-  QStringList cmds=msg.split(" ",QString::SkipEmptyParts);
+  QStringList cmds=msg.split(" ",Qt::SkipEmptyParts);
   bool ok;
   unsigned id;
   int delay_len;

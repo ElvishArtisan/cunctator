@@ -2,7 +2,7 @@
 //
 // A delay queue for UDP packets.
 //
-//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2025 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -287,7 +287,7 @@ double UdpQueue::GetTimestamp()
 
 bool UdpQueue::ValidateCicPacket(const QString &pack) const
 {
-  QStringList f0=pack.split(":",QString::KeepEmptyParts);
+  QStringList f0=pack.split(":",Qt::KeepEmptyParts);
   switch(f0.at(0).toUInt()) {
   case 0:
     if(f0.size()!=4) {

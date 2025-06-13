@@ -153,3 +153,5 @@
 	* Removed numerous build warnings.
 2022-10-01 Fred Gleason <fredg@paravelsystems.com>
 	* Incremented the package version to 2.0.0.
+2025-06-13 Fred Gleason <fredg@paravelsystems.com>
+	* Cleaned up build warnings.

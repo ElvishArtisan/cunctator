@@ -2,7 +2,7 @@
 //
 // Cunctator delay control daemon.
 //
-//   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2011-2025 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -213,7 +213,7 @@ void MainObject::ProcessRml(const QString &cmd)
   bool ok=false;
   QString str;
   
-  QStringList args=cmd.split(" ",QString::SkipEmptyParts);
+  QStringList args=cmd.split(" ",Qt::SkipEmptyParts);
   if(args[0]=="GO") {
     if((args.size()<5)||(args.size()>6)) {
       return;
