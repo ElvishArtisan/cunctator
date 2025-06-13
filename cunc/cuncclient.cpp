@@ -136,7 +136,7 @@ MainWidget::MainWidget(QWidget *parent)
   connect(cunc_socket,SIGNAL(connected()),this,SLOT(socketConnectedData()));
   connect(cunc_socket,SIGNAL(disconnected()),this,SLOT(socketClosedData()));
   connect(cunc_socket,SIGNAL(readyRead()),this,SLOT(readyReadData()));
-  connect(cunc_socket,SIGNAL(error(QAbstractSocket::SocketError)),
+  connect(cunc_socket,SIGNAL(errorOccurred(QAbstractSocket::SocketError)),
 	  this,SLOT(errorData(QAbstractSocket::SocketError)));
   cunc_socket->connectToHost(hostname,port);
 }

@@ -4,7 +4,7 @@
 ##
 ## Use automake to process this into a Makefile.in
 ##
-##   (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
+##   (C) Copyright 2011-2025 Fred Gleason <fredg@paravelsystems.com>
 ##
 ##   This program is free software; you can redistribute it and/or modify
 ##   it under the terms of the GNU General Public License version 2 as
@@ -20,12 +20,12 @@
 ##   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ##
 
-AM_CPPFLAGS = -Wall -Wno-strict-aliasing -std=c++11 -fPIC @QT5_GUI_CFLAGS@
-MOC = @QT5_MOC@
+AM_CPPFLAGS = -Wall -Wno-strict-aliasing -std=c++17 -fPIC @QT6_CFLAGS@
+MOC = @QT6_MOC@
 
 # The dependency for qt's Meta Object Compiler (moc)
 moc_%.cpp:	%.h
-	@MOC@ $< -o $@
+	@QT6_MOC@ $< -o $@
 
 lib_LTLIBRARIES = libcunc.la
 dist_libcunc_la_SOURCES = cmdswitch.cpp cmdswitch.h\

@@ -2,7 +2,7 @@
 //
 //   Flashing button widget.
 //
-//   (C) Copyright 2002-2022 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2002-2025 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Library General Public License 
@@ -39,8 +39,6 @@ class PushButton : public QPushButton
   enum ClockSource {InternalClock=0,ExternalClock=1};
   PushButton(QWidget *parent);
   PushButton(const QString &text,QWidget *parent);
-  //  PushButton(const QIconSet &icon,const QString &text,
-  //	      QWidget *parent,const char *name=0);
   QColor flashColor() const;
   void setFlashColor(QColor color);
   int flashPeriod() const;
@@ -85,7 +83,6 @@ class PushButton : public QPushButton
   int button_id;
   ClockSource flash_clock_source;
 };
-
 
 
 #endif  // PUSHBUTTON_H

@@ -2,7 +2,7 @@
 ##
 ## cuncd/ Makefile.am for Cunctator
 ##
-## (C) Copyright 2011-2022 Fred Gleason <fredg@paravelsystems.com>
+## (C) Copyright 2011-2025 Fred Gleason <fredg@paravelsystems.com>
 ##
 ## Use automake to process this into a Makefile.in
 ##
@@ -20,13 +20,12 @@
 ##   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 ##
 
-AM_CPPFLAGS = -Wall -DPREFIX=\"$(prefix)\" -Wno-strict-aliasing -std=c++11 -fPIC @QT5_GUI_CFLAGS@  @JACK_CFLAGS@ -I$(top_srcdir)/lib
+AM_CPPFLAGS = -Wall -DPREFIX=\"$(prefix)\" -Wno-strict-aliasing -std=c++17 -fPIC @QT6_CFLAGS@  @JACK_CFLAGS@ -I$(top_srcdir)/lib
 LIBS = -L$(top_srcdir)/lib
-MOC = @QT5_MOC@
 
 # QT's Meta Object Compiler (moc)
 moc_%.cpp:	%.h
-	@MOC@ $< -o $@
+	@QT6_MOC@ $< -o $@
 
 sbin_PROGRAMS = cuncd
 dist_cuncd_SOURCES = airtools.cpp airtools.h\
@@ -53,7 +52,7 @@ nodist_cuncd_SOURCES = moc_airtools.cpp\
                        moc_rmlengine.cpp\
                        moc_udpqueue.cpp
 
-cuncd_LDADD = @JACK_LIBS@ @CUNC_LIBS@ @QT5_GUI_LIBS@
+cuncd_LDADD = @JACK_LIBS@ @CUNC_LIBS@ @QT6_LIBS@
 
 EXTRA_DIST = cuncd.pro
 

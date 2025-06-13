@@ -237,7 +237,7 @@ bool UdpQueue::Load(Profile *p)
   QString section=QString::asprintf("UdpQueue%d",queue_id+1);
   QHostAddress addr;
   int port;
-  int delay;
+  int delay=0;
   int count=0;
 
   if((delay_id=p->intValue(section,"DelayNumber",-1))<0) {

@@ -8,6 +8,6 @@ X11 Window System
 Needed for building on Un*x-type systems, including Linux.  Virtually 
 all Linux distros should include this.
 
-Qt5 Toolkit, v5.9 or better
+Qt6 Toolkit, v6.2 or better
 Most modern Linux distros include this. It can also be downloaded directly
 at https://www.qt.io/.

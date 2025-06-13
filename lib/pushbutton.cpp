@@ -2,7 +2,7 @@
 //
 //   Flashing button widget.
 //
-//   (C) Copyright 2002-2022 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2002-2025 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Library General Public License 
@@ -22,7 +22,6 @@
 #include <QPainter>
 #include <QPalette>
 #include <QPixmap>
-//#include <QPointArray>
 #include <QPushButton>
 #include <QTimer>
 
@@ -40,14 +39,7 @@ PushButton::PushButton(const QString &text,QWidget *parent)
 {
   Init();
 }
-/*
-PushButton::PushButton(const QIconSet &icon,const QString &text,
-			 QWidget *parent,const char *name)
-  : QPushButton(text,parent,name)
-{
-  Init();
-}
-*/
+
 
 QColor PushButton::flashColor() const
 {
@@ -63,7 +55,7 @@ void PushButton::setFlashColor(QColor color)
 
   flash_color=color;  
   flash_palette=
-    QPalette(QColor(flash_color),palette().color(QPalette::Background));
+    QPalette(QColor(flash_color),palette().color(QPalette::Window));
 
   color.getHsv(&h,&s,&v);
   if((h>180)&&(h<300)) {
@@ -128,7 +120,7 @@ void PushButton::mousePressEvent(QMouseEvent *e)
 	QPushButton::mousePressEvent(e);
 	break;
 	
-      case Qt::MidButton:
+      case Qt::MiddleButton:
 	emit centerPressed();
 	break;
 	
@@ -149,23 +141,23 @@ void PushButton::mouseReleaseEvent(QMouseEvent *e)
 	QPushButton::mouseReleaseEvent(e);
 	break;
 	
-      case Qt::MidButton:
+      case Qt::MiddleButton:
 	e->accept();
 	emit centerReleased();
-	if((e->x()>=0)&&(e->x()<geometry().width())&&
-	   (e->y()>=0)&&(e->y()<geometry().height())) {
+	if((e->position().x()>=0)&&(e->position().x()<geometry().width())&&
+	   (e->position().y()>=0)&&(e->position().y()<geometry().height())) {
 	  emit centerClicked();
-	  emit centerClicked(button_id,QPoint(e->x(),e->y()));
+	  emit centerClicked(button_id,e->position().toPoint());
 	}
 	break;
 	
       case Qt::RightButton:
 	e->accept();
 	emit rightReleased();
-	if((e->x()>=0)&&(e->x()<geometry().width())&&
-	   (e->y()>=0)&&(e->y()<geometry().height())) {
+	if((e->position().x()>=0)&&(e->position().x()<geometry().width())&&
+	   (e->position().y()>=0)&&(e->position().y()<geometry().height())) {
 	  emit rightClicked();
-	  emit rightClicked(button_id,QPoint(e->x(),e->y()));
+	  emit rightClicked(button_id,e->position().toPoint());
 	}
 	break;
 
