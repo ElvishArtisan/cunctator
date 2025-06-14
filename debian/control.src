@@ -5,9 +5,26 @@ Maintainer: Fred Gleason <fredg@paravelsystems.com>
 Build-Depends: debhelper-compat (= 12), autotools-dev
 Standards-Version: 4.4.1
 
-Package: cunctator
+Package: cunctator-common
 Architecture: any
 Depends: ${misc:Depends}
 Description: System for controlling broadcast audio delays
  Cunctator is a system for controlling broadcast audio delay units, such as
- the AirTools 6100 and Eventide BD600.
+ the AirTools 6100 and Eventide BD600. This package provides the common core
+ components needed by the 'cunctator-panels' and 'cunctator-server' packages.
+
+Package: cunctator-panels
+Architecture: any
+Depends: ${misc:Depends}, cunctator-common (= @VERSION@-1)
+Description: System for controlling broadcast audio delays
+ Cunctator is a system for controlling broadcast audio delay units, such as
+ the AirTools 6100 and Eventide BD600. This package provides GUI control
+ components.
+
+Package: cunctator-server
+Architecture: any
+Depends: ${misc:Depends}, cunctator-common (= @VERSION@-1)
+Description: System for controlling broadcast audio delays
+ Cunctator is a system for controlling broadcast audio delay
+ units, such as the AirTools 6100 and Eventide BD600. This package provides
+ server components.

@@ -1,8 +1,8 @@
-## automake.am
+## Makefile.am
 ##
-## Automake.am for cunctator debian/
+## Makefile.am for cunctator debian/
 ##
-##   (C) Copyright 2022 Fred Gleason <fredg@paravelsystems.com>
+##   (C) Copyright 2022-2025 Fred Gleason <fredg@paravelsystems.com>
 ##
 ##   This program is free software; you can redistribute it and/or modify
 ##   it under the terms of the GNU General Public License as
@@ -27,9 +27,11 @@ EXTRA_DIST = changelog\
              control\
              control.src\
              copyright\
-             prerm\
-             postinst\
-             postrm\
+             cunctator-common.postinst\
+             cunctator-common.postrm\
+             cunctator-server.prerm\
+             cunctator-server.postinst\
+             cunctator-server.postrm\
              rules
 
 MAINTAINERCLEANFILES = changelog\

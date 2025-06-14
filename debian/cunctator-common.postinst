@@ -1,15 +1,12 @@
 #!/bin/sh
-# postinst script for Cunctator
+# postinst script for cunctator-common
 
 case "$1" in
     configure)
       ldconfig
-      /bin/systemctl daemon-reload
       if test ! -e /etc/cunctator.conf ; then
 	  cp -f /usr/share/cunctator/cunctator.conf-sample /etc/cunctator.conf
       fi
-      /bin/systemctl restart cunctator
-      /bin/systemctl enable cunctator
 
       if test -x /usr/bin/gtk-update-icon-cache ; then
 	  /usr/bin/gtk-update-icon-cache -f --quiet /usr/share/icons/hicolor

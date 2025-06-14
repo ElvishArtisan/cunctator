@@ -13,6 +13,42 @@ binary:
 	dh_installchangelogs ChangeLog
 	mkdir -p debian/cunctator/usr/share/cunctator
 	cp conf/cunctator.conf-sample debian/cunctator/usr/share/cunctator/
+
+#
+# cunctator-common
+#
+	mkdir -p debian/cunctator-common/usr/lib
+	rm -f debian/tmp/usr/lib/lib/libcunc.la
+	mv debian/tmp/usr/lib/libcunc-*.so debian/cunctator-common/usr/lib/
+	mkdir -p debian/cunctator-common/usr/share/doc/cunctator
+	cp AUTHORS debian/cunctator-common/usr/share/doc/cunctator/
+	cp ChangeLog debian/cunctator-common/usr/share/doc/cunctator/
+	cp COPYING debian/cunctator-common/usr/share/doc/cunctator/
+	cp NEWS debian/cunctator-common/usr/share/doc/cunctator/
+	cp README debian/cunctator-common/usr/share/doc/cunctator/
+
+#
+# cunctator-panels
+#
+	mkdir -p debian/cunctator-panels/usr/bin
+	mv debian/tmp/usr/bin/cunc debian/cunctator-panels/usr/bin/
+	mkdir -p debian/cunctator-panels/usr/share/applications
+	mv debian/tmp/usr/share/applications/cunctator_cunc.desktop debian/cunctator-panels/usr/share/applications
+	mkdir -p debian/cunctator-panels/usr/share/icons/hicolor/16x16/apps
+	mv debian/tmp/usr/share/icons/hicolor/16x16/apps/* debian/cunctator-panels/usr/share/icons/hicolor/16x16/apps/
+	mkdir -p debian/cunctator-panels/usr/share/icons/hicolor/32x32/apps
+	mv debian/tmp/usr/share/icons/hicolor/32x32/apps/* debian/cunctator-panels/usr/share/icons/hicolor/32x32/apps/
+	mkdir -p debian/cunctator-panels/usr/share/icons/hicolor/48x48/apps
+	mv debian/tmp/usr/share/icons/hicolor/48x48/apps/* debian/cunctator-panels/usr/share/icons/hicolor/48x48/apps/
+
+#
+# cunctator-server
+#
+	mkdir -p debian/cunctator-server/usr/sbin
+	mv debian/tmp/usr/sbin/cuncd debian/cunctator-server/usr/sbin/
+	mkdir -p debian/cunctator-server/lib/systemd/system
+	mv debian/tmp/lib/systemd/system/* debian/cunctator-server/lib/systemd/system/
+
 	dh_strip_nondeterminism
 	dh_compress
 	dh_fixperms

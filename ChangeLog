@@ -157,3 +157,6 @@
 	* Cleaned up build warnings.
 2025-06-13 Fred Gleason <fredg@paravelsystems.com>
 	* Updated the Qt dependency to Qt6.
+2025-06-14 Fred Gleason <fredg@paravelsystems.com>
+	* Split the 'cunctator' DEB package in 'cunctator-common',
+	'cunctator-panels' and 'cunctator-server' packages.
