@@ -40,6 +40,8 @@ binary:
 	mv debian/tmp/usr/share/icons/hicolor/32x32/apps/* debian/cunctator-panels/usr/share/icons/hicolor/32x32/apps/
 	mkdir -p debian/cunctator-panels/usr/share/icons/hicolor/48x48/apps
 	mv debian/tmp/usr/share/icons/hicolor/48x48/apps/* debian/cunctator-panels/usr/share/icons/hicolor/48x48/apps/
+	mkdir -p debian/cunctator-panels/usr/share/man/man1
+	cp debian/tmp/usr/share/man/man1/*.1 debian/cunctator-panels/usr/share/man/man1/
 
 #
 # cunctator-server

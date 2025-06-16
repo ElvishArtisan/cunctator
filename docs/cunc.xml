@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<refentry id="stdin" xmlns="http://docbook.org/ns/docbook" version="5.0">
+  <!--
+      Header
+  -->
+  <refmeta>
+    <refentrytitle>cunc</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo class='source'>June 2025</refmiscinfo>
+    <refmiscinfo class='manual'>Linux Audio Manual</refmiscinfo>
+  </refmeta>
+  <refnamediv>
+    <refname>cunc</refname>
+    <refpurpose>
+      Client for controlling broadcast audio delay systems
+    </refpurpose>
+  </refnamediv>
+  <info>
+    <author>
+      <personname>
+	<firstname>Fred</firstname>
+	<surname>Gleason</surname>
+	<email>fredg@paravelsystems.com</email>
+      </personname>
+      <contrib>Application Author</contrib>
+    </author>
+  </info>
+
+  <!--
+      Body
+  -->
+  <refsynopsisdiv id='synopsis'>
+    <cmdsynopsis>
+      <command>cunc</command>
+      <arg choice='opt'><replaceable>OPTIONS</replaceable></arg>
+      <sbr/>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1 id='description'><title>Description</title>
+  <para>
+    <command>cunc</command><manvolnum>1</manvolnum> is a GUI utility for
+    controlling broadcast audio delay systems via the
+    <command>cuncd</command><manvolnum>8</manvolnum> service daemon.
+  </para>
+  </refsect1>
+
+  <refsect1 id='options'><title>Options</title>
+  <variablelist remap='TP'>
+    <varlistentry>
+      <term>
+	<option>--delay=</option><replaceable>delay-num</replaceable>
+      </term>
+      <listitem>
+	<para>
+	  Establish control of the delay device at index
+	  <replaceable>delay-num</replaceable>. Default value is
+	  <userinput>0</userinput>.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+	<option>--hostname=</option><replaceable>hostname</replaceable>
+      </term>
+      <listitem>
+	<para>
+	  Connect to a <command>cuncd</command><manvolnum>8</manvolnum>
+	  instance at <replaceable>hostname</replaceable>. Default value
+	  is <userinput>localhost</userinput>.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+	<option>--port=</option><replaceable>port-num</replaceable>
+      </term>
+      <listitem>
+	<para>
+	  Connect to a <command>cuncd</command><manvolnum>8</manvolnum>
+	  instance at TCP port number <replaceable>port-num</replaceable>.
+	  Default value is <userinput>3749</userinput>.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+	<option>--list-delays</option>
+      </term>
+      <listitem>
+	<para>
+	  Print a list of available delay devices to standard output,
+	  then exit.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+	<option>--help</option>
+      </term>
+      <listitem>
+	<para>
+	  Print a short usage message and then exit.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
+	<option>--version</option>
+      </term>
+      <listitem>
+	<para>
+	  Print the version string and then exit.
+	</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  </refsect1>
+
+</refentry>
+

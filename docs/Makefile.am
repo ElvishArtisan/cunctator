@@ -19,7 +19,31 @@
 ##
 ## Use automake to process this into a Makefile.in
 
-EXTRA_DIST = protocol.odt
+##
+## Build Dependencies
+##
+%.html:	%.xml
+	xsltproc -o $@ $(DOCBOOK_STYLESHEETS)/xhtml/docbook.xsl $<
+%.pdf:	%.xml
+	xsltproc --stringparam page.orientation portrait $(DOCBOOK_STYLESHEETS)/fo/docbook.xsl $< | fop - -pdf $@
+%.1:	%.xml
+	xsltproc $(DOCBOOK_STYLESHEETS)/manpages/docbook.xsl $<
+%.5:	%.xml
+	xsltproc $(DOCBOOK_STYLESHEETS)/manpages/docbook.xsl $<
+%.8:	%.xml
+	xsltproc $(DOCBOOK_STYLESHEETS)/manpages/docbook.xsl $<
+
+all-local:	cunc.1\
+                cunc.xml
+
+EXTRA_DIST = cunc.1\
+             cunc.xml\
+             protocol.odt
+
+man_MANS = cunc.1
 
 CLEANFILES = *~
+DISTCLEANFILES = *.1\
+                 *.5\
+                 *.8
 MAINTAINERCLEANFILES = *~ Makefile.in configure aclocal.m4

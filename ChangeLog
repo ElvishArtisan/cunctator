@@ -162,3 +162,5 @@
 	'cunctator-panels' and 'cunctator-server' packages.
 2025-06-16 Fred Gleason <fredg@paravelsystems.com>
 	* Added a '--list-delays' option to cunc(1).
+2025-06-16 Fred Gleason <fredg@paravelsystems.com>
+	* Added a cunc(1) man page.
