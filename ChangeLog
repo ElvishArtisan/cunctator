@@ -160,3 +160,5 @@
 2025-06-14 Fred Gleason <fredg@paravelsystems.com>
 	* Split the 'cunctator' DEB package in 'cunctator-common',
 	'cunctator-panels' and 'cunctator-server' packages.
+2025-06-16 Fred Gleason <fredg@paravelsystems.com>
+	* Added a '--list-delays' option to cunc(1).

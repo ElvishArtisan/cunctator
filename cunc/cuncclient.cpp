@@ -41,28 +41,34 @@ MainWidget::MainWidget(QWidget *parent)
   unsigned port=CUNC_TCP_PORT;
   bool ok;
   cunc_delay_id=0;
+  cunc_list_delays=false;
+  cunc_delay_quantity=0;
 
   //
   // Read Command Options
   //
   CmdSwitch *cmd=new CmdSwitch("cunc",CUNC_USAGE);
   for(unsigned i=0;i<cmd->keys();i++) {
+    if(cmd->key(i)=="--delay") {
+      cunc_delay_id=cmd->value(i).toUInt(&ok);
+      if(!ok) {
+	fprintf(stderr,"cunc: invalid delay number\n");
+	exit(256);
+      }
+      cmd->setProcessed(i,true);
+    }
     if(cmd->key(i)=="--hostname") {
       hostname=cmd->value(i);
+      cmd->setProcessed(i,true);
+    }
+    if(cmd->key(i)=="--list-delays") {
+      cunc_list_delays=true;
       cmd->setProcessed(i,true);
     }
     if(cmd->key(i)=="--port") {
       port=cmd->value(i).toUInt(&ok);
       if((!ok)||(port>0xFFFF)) {
 	fprintf(stderr,"cunc: invalid port value\n");
-	exit(256);
-      }
-      cmd->setProcessed(i,true);
-    }
-    if(cmd->key(i)=="--delay") {
-      cunc_delay_id=cmd->value(i).toUInt(&ok);
-      if(!ok) {
-	fprintf(stderr,"cunc: invalid delay number\n");
 	exit(256);
       }
       cmd->setProcessed(i,true);
@@ -182,8 +188,14 @@ void MainWidget::dumpFlashResetData()
 
 void MainWidget::socketConnectedData()
 {
-  SendCommand(QString::asprintf("DS %u!",cunc_delay_id));
-  SendCommand(QString::asprintf("DM %u!",cunc_delay_id));
+  if(cunc_list_delays) {
+    SendCommand("DQ!");
+  }
+  else {
+    show();
+    SendCommand(QString::asprintf("DS %u!",cunc_delay_id));
+    SendCommand(QString::asprintf("DM %u!",cunc_delay_id));
+  }
 }
 
 
@@ -259,6 +271,16 @@ void MainWidget::ProcessCommand(const QString &msg)
   if(cmds.size()<1) {
     return;
   }
+  if((cmds.at(0)=="DQ")&&(cmds.size()==2)) {
+    cunc_delay_quantity=cmds.at(1).toUInt(&ok);
+    if(ok&&(cunc_delay_quantity>=0)) {
+      for(unsigned i=0;i<cunc_delay_quantity;i++) {
+	SendCommand(QString::asprintf("DM %u!",i));
+      }
+    }
+    else {
+    }
+  }
   if(cmds[0]=="DS") {   // Delay State
     id=cmds[1].toUInt(&ok);
     if((!ok)||(id!=cunc_delay_id)) {
@@ -322,13 +344,23 @@ void MainWidget::ProcessCommand(const QString &msg)
 
   if(cmds[0]=="DM") {   // Delay Model
     id=cmds[1].toUInt(&ok);
-    if((!ok)||(id!=cunc_delay_id)) {
-      return;
-    }
     for(int i=3;i<cmds.size();i++) {
       desc+=(cmds[i]+" ");
     }
-    setWindowTitle(desc);
+    if(ok&&(id>=0)) {
+      if(cunc_list_delays) {
+	printf("%d:\t%s\n",id,desc.toUtf8().constData());
+	if((id+1)==cunc_delay_quantity) {
+	  exit(0);
+	}
+      }
+      else {
+	if((!ok)||(id!=cunc_delay_id)) {
+	  return;
+	}
+	setWindowTitle(desc);
+      }
+    }
   }
 }
 
@@ -341,8 +373,8 @@ void MainWidget::SendCommand(const QString &msg)
 
 int main(int argc,char *argv[])
 {
-  QApplication a(argc,argv,true);
+  QApplication a(argc,argv);
   MainWidget *w=new MainWidget();
-  w->show();
+
   return a.exec();
 }

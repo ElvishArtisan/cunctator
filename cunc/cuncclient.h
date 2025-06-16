@@ -65,6 +65,8 @@ class MainWidget : public QMainWindow
   QString cunc_buffer;
   unsigned cunc_delay_id;
   QTimer *cunc_dump_timer;
+  bool cunc_list_delays;
+  unsigned cunc_delay_quantity;
 };
 
 
