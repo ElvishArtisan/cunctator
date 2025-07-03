@@ -43,6 +43,7 @@ MainWidget::MainWidget(QWidget *parent)
   cunc_delay_id=0;
   cunc_list_delays=false;
   cunc_delay_quantity=0;
+  cunc_delimiter='!';
 
   //
   // Read Command Options
@@ -54,6 +55,21 @@ MainWidget::MainWidget(QWidget *parent)
       if(!ok) {
 	fprintf(stderr,"cunc: invalid delay number\n");
 	exit(256);
+      }
+      cmd->setProcessed(i,true);
+    }
+    if(cmd->key(i)=="--dialect") {
+      if(cmd->value(i)=="0") {
+	cunc_delimiter='\n';
+      }
+      else {
+	if(cmd->value(i)=="1") {
+	  cunc_delimiter='!';
+	}
+	else {
+	  fprintf(stderr,"cunc: invalid --dialect value\n");
+	  exit(1);
+	}
       }
       cmd->setProcessed(i,true);
     }
@@ -162,21 +178,21 @@ QSizePolicy MainWidget::sizePolicy() const
 
 void MainWidget::enterPushed()
 {
-  SendCommand(QString::asprintf("SS %u %u!",cunc_delay_id,
-				Cunctator::StateEntering));
+  SendCommand(QString::asprintf("SS %u %u%c",cunc_delay_id,
+				Cunctator::StateEntering,cunc_delimiter));
 }
 
 
 void MainWidget::exitPushed()
 {
-  SendCommand(QString::asprintf("SS %u %u!",cunc_delay_id,
-				Cunctator::StateExiting));
+  SendCommand(QString::asprintf("SS %u %u%c",cunc_delay_id,
+				Cunctator::StateExiting,cunc_delimiter));
 }
 
 
 void MainWidget::dumpPushed()
 {
-  SendCommand(QString::asprintf("DP %u!",cunc_delay_id));
+  SendCommand(QString::asprintf("DP %u%c",cunc_delay_id,cunc_delimiter));
 }
 
 
@@ -189,12 +205,12 @@ void MainWidget::dumpFlashResetData()
 void MainWidget::socketConnectedData()
 {
   if(cunc_list_delays) {
-    SendCommand("DQ!");
+    SendCommand(QString::asprintf("DQ%c",cunc_delimiter));
   }
   else {
     show();
-    SendCommand(QString::asprintf("DS %u!",cunc_delay_id));
-    SendCommand(QString::asprintf("DM %u!",cunc_delay_id));
+    SendCommand(QString::asprintf("DS %u%c",cunc_delay_id,cunc_delimiter));
+    SendCommand(QString::asprintf("DM %u%c",cunc_delay_id,cunc_delimiter));
   }
 }
 
@@ -216,7 +232,7 @@ void MainWidget::readyReadData()
     data[n]=0;
     for(int i=0;i<n;i++) {
       if(isprint(data[i])) {
-	if(data[i]=='!') {
+	if(data[i]==cunc_delimiter) {
 	  ProcessCommand(cunc_buffer);
 	  cunc_buffer="";
 	}
@@ -374,7 +390,7 @@ void MainWidget::SendCommand(const QString &msg)
 int main(int argc,char *argv[])
 {
   QApplication a(argc,argv);
-  MainWidget *w=new MainWidget();
+  new MainWidget();
 
   return a.exec();
 }

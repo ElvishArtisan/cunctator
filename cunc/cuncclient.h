@@ -30,7 +30,7 @@
 
 #include "../lib/pushbutton.h"
 
-#define CUNC_USAGE "[--hostname=<hostname>] [--port=<port>] [--delay=<delay-num>]\n\nWhere <hostname> is the name or IP address of the host to connect to\n(default = localhost), <port> is the TCP port to connect to\n(default = 3749)\n"
+#define CUNC_USAGE "[OPTIONS]\n"
 #define CUNC_DEFAULT_ADDR "localhost"
 
 class MainWidget : public QMainWindow
@@ -67,6 +67,7 @@ class MainWidget : public QMainWindow
   QTimer *cunc_dump_timer;
   bool cunc_list_delays;
   unsigned cunc_delay_quantity;
+  char cunc_delimiter;
 };
 
 

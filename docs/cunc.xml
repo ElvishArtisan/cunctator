@@ -62,6 +62,19 @@
 
     <varlistentry>
       <term>
+	<option>--dialect=</option><userinput>0</userinput>|<userinput>1</userinput>
+      </term>
+      <listitem>
+	<para>
+	  Specify the dialect of the control protocol to use when connecting
+	  to the <command>cuncd</command><manvolnum>8</manvolnum> instance.
+	  The default value is <userinput>1</userinput>.
+	</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term>
 	<option>--hostname=</option><replaceable>hostname</replaceable>
       </term>
       <listitem>

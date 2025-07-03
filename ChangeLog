@@ -164,3 +164,5 @@
 	* Added a '--list-delays' option to cunc(1).
 2025-06-16 Fred Gleason <fredg@paravelsystems.com>
 	* Added a cunc(1) man page.
+2025-07-03 Fred Gleason <fredg@paravelsystems.com>
+	* Added a '--dialect' option to cunc(1).
