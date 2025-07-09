@@ -166,3 +166,5 @@
 	* Added a cunc(1) man page.
 2025-07-03 Fred Gleason <fredg@paravelsystems.com>
 	* Added a '--dialect' option to cunc(1).
+2025-07-08 Fred Gleason <fredg@paravelsystems.com>
+	* Incremented the package version to 3.0.0rc0.
