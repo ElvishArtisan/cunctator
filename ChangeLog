@@ -168,3 +168,7 @@
 	* Added a '--dialect' option to cunc(1).
 2025-07-08 Fred Gleason <fredg@paravelsystems.com>
 	* Incremented the package version to 3.0.0rc0.
+2025-08-09 Fred Gleason <fredg@paravelsystems.com>
+	* Added a 'shlibs' dependency to the DEB packages/
+	* Added a 'qt6-qpa-plugins' dependency to the 'cunctator-panels'
+	DEB package.

@@ -7,7 +7,7 @@ Standards-Version: 4.4.1
 
 Package: cunctator-common
 Architecture: any
-Depends: ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: System for controlling broadcast audio delays
  Cunctator is a system for controlling broadcast audio delay units, such as
  the AirTools 6100 and Eventide BD600. This package provides the common core
@@ -15,7 +15,7 @@ Description: System for controlling broadcast audio delays
 
 Package: cunctator-panels
 Architecture: any
-Depends: ${misc:Depends}, cunctator-common (= @VERSION@-1)
+Depends: ${shlibs:Depends}, ${misc:Depends}, qt6-qpa-plugins, cunctator-common (= @VERSION@-1)
 Description: System for controlling broadcast audio delays
  Cunctator is a system for controlling broadcast audio delay units, such as
  the AirTools 6100 and Eventide BD600. This package provides GUI control
@@ -23,7 +23,7 @@ Description: System for controlling broadcast audio delays
 
 Package: cunctator-server
 Architecture: any
-Depends: ${misc:Depends}, cunctator-common (= @VERSION@-1)
+Depends: ${shlibs:Depends}, ${misc:Depends}, cunctator-common (= @VERSION@-1)
 Description: System for controlling broadcast audio delays
  Cunctator is a system for controlling broadcast audio delay
  units, such as the AirTools 6100 and Eventide BD600. This package provides
