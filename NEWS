@@ -1,6 +1,12 @@
 The NEWS file for the Cunctator package.
 
 -------------------------------------------------------------------------------
+v3.0.0rc1 -- 9 August 2025
+
+Changes:
+    Added missing dependencies to various DEB packages. See the ChangeLog
+    for details.
+-------------------------------------------------------------------------------
 v3.0.0rc0 -- 8 July 2025
 
 Changes:
