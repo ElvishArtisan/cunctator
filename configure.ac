@@ -46,6 +46,12 @@ case ${host} in
 esac
 
 #
+# Option Switches
+#
+AC_ARG_ENABLE(hpi,[  --disable-hpi           disable AudioScience HPI sound support],
+		      [HPI_DISABLED=yes],[])
+
+#
 # Check for Qt6 (Mandatory)
 #
 AQ_FIND_QT6(QT6,Core Gui Widgets Network,[],[AC_MSG_ERROR([*** Qt6 not found ***])])
@@ -78,9 +84,23 @@ else
 fi
 
 #
+# Check for AudioScience HPI
+#
+AC_CHECK_HEADER(asihpi/hpi.h,[HPI_FOUND=yes],[])
+if test $HPI_FOUND ; then
+  if test -z $HPI_DISABLED ; then
+    USING_HPI=yes
+    AC_DEFINE(HAVE_HPI,yes)
+    AC_SUBST(HPI_LIBS,"-lhpi")
+  else
+    AC_SUBST(HPI_LIBS,"")
+  fi
+fi
+
+#
 # Check for JACK
 #
-PKG_CHECK_MODULES([JACK],[jack],[],[AC_MSG_ERROR([*** JACK not found ***])])
+PKG_CHECK_MODULES([JACK],[jack],[USING_JACK=yes],[AC_MSG_ERROR([*** JACK not found ***])])
 
 #
 # Check for SoundTouch
@@ -140,6 +160,23 @@ AC_OUTPUT()
 
 chmod 755 build_debs.sh
 
+AC_MSG_NOTICE()
+AC_MSG_NOTICE()
+AC_MSG_NOTICE("|---------------------------------------------------------|")
+AC_MSG_NOTICE("|         *** RIVENDELL CONFIGURATION SUMMARY ***         |")
+AC_MSG_NOTICE("|---------------------------------------------------------|")
+AC_MSG_NOTICE("| Configured Audio Drivers:                               |")
+if test -z $USING_HPI ; then
+AC_MSG_NOTICE("|                          AudioScience HPI ... No        |")
+else
+AC_MSG_NOTICE("|                          AudioScience HPI ... Yes       |")
+fi
+if test -z $USING_JACK ; then
+AC_MSG_NOTICE("|                 JACK Audio Connection Kit ... No        |")
+else
+AC_MSG_NOTICE("|                 JACK Audio Connection Kit ... Yes       |")
+fi
+AC_MSG_NOTICE("|---------------------------------------------------------|")
 AC_MSG_NOTICE()
 AC_MSG_NOTICE(Now enter 'make' to build the software.)
 AC_MSG_NOTICE()

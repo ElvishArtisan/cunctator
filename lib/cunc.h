@@ -50,7 +50,7 @@ class Cunctator
 {
  public:
   enum DelayType {TypeUnknown=0,TypeDummy=1,TypeAirTools=2,TypeBd600=3,
-		  TypeJackDelay=4};
+    TypeJackDelay=4,TypeAsihpiDelay=5};
   enum DelayState {StateUnknown=0,StateBypassed=1,StateEntered=2,
 		   StateEntering=3,StateExited=4,StateExiting=5};
 };

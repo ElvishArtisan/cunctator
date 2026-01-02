@@ -37,8 +37,8 @@
 #include <QTimer>
 
 #include <cmdswitch.h>
-
 #include <cunc.h>
+#include <terminator.h>
 
 #include "globals.h"
 #include "cuncd.h"
@@ -120,6 +120,12 @@ MainObject::MainObject(QObject *parent)
   cuncd_rml_socket->bind(QHostAddress(),CUNC_TCP_PORT);
   connect(cuncd_rml_socket,SIGNAL(readyRead()),
 	  this,SLOT(rmlReceivedData()));
+
+  //
+  // Initialize Terminator
+  //
+  Terminator *term=new Terminator(this);
+  connect(term,SIGNAL(terminating()),this,SLOT(terminatingData()));
 }
 
 
@@ -191,6 +197,15 @@ void MainObject::rmlReceivedData()
       }
     }
   }
+}
+
+
+void MainObject::terminatingData()
+{
+  for(unsigned i=0;i<cuncd_config->delays();i++) {
+    delete cuncd_config->delay(i);
+  }
+  ::exit(0);
 }
 
 

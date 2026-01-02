@@ -45,6 +45,7 @@ class MainObject : public QObject
   void garbageCollectionData();
   void delayQuantityRequestedData(int id);
   void rmlReceivedData();
+  void terminatingData();
 
  private:
   Connection *GetConnection(int id) const;

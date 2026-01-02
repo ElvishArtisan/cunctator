@@ -2,7 +2,7 @@
 //
 // A container class for Cunctator Configuration
 //
-//   (C) Copyright 2002-2022 Fred Gleason <fredg@paravelsystems.com>
+//   (C) Copyright 2002-2025 Fred Gleason <fredg@paravelsystems.com>
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License version 2 as
@@ -28,6 +28,7 @@
 #include "cuncconfig.h"
 #include "dummy.h"
 #include "airtools.h"
+#include "asihpidelay.h"
 #include "bd600.h"
 #include "jackdelay.h"
 
@@ -117,6 +118,10 @@ void CuncConfig::dumpConfig(FILE *stream)
     case Cunctator::TypeJackDelay:
       fprintf(stream,"Type=JackDelay\n");
       break;
+
+    case Cunctator::TypeAsihpiDelay:
+      fprintf(stream,"Type=AsihpiDelay\n");
+      break;
     }
   }
 }
@@ -166,6 +171,10 @@ bool CuncConfig::load()
     }
     if(str.toLower()=="jackdelay") {
       conf_delays.push_back(new JackDelay(p,count-1,conf_debug,this));
+      added=true;
+    }
+    if(str.toLower()=="asihpidelay") {
+      conf_delays.push_back(new AsihpiDelay(p,count-1,conf_debug,this));
       added=true;
     }
     if(added) {

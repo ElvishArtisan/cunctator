@@ -37,6 +37,7 @@ TcpPort=3749
 ;   'AirTools' -- The AirTools 6100 Broadcast Delay
 ;   'BD600' -- The Eventide BD600 Broadcast Delay
 ;   'JackDelay' -- Bult-in delay using the JACK audio connection kit.
+;   'AsihpiDelay' -- Built-in delay using Audioscience HPI
 ;
 Type=Dummy
 
@@ -61,12 +62,40 @@ TtySpeed=9600
 ;
 UnitAddress=1
 
+; AdapterIndex=1
+;
+; Specify the index number of the audio adapter to use for the delay.
+; Used only by the AsihpiDelay driver.
+;
+AdapterIndex=1
+
+; InputPort=0
+;
+; Specify the input port number on the specified audio adapter.
+; Used only by the AsihpiDelay driver.
+;
+InputPort=0
+
+; OutputPort=0
+;
+; Specify the output port number on the specified audio adapter.
+; Used only by the AsihpiDelay driver.
+;
+OutputPort=0
+
 ; AudioChannels=2
 ;
 ; Specify the number of audio channels to use for the delay. Valid values
 ; are 1 - 2.  Used only by the JackDelay driver.
 ;
 AudioChannels=2
+
+; SampleRate=48000
+;
+; Specify the sample rate to use for the delay. Used only by the
+; AsihpiDelay driver.
+;
+SampleRate=48000
 
 ; DumpPercentage=50
 ;
@@ -75,6 +104,13 @@ AudioChannels=2
 ; by the JackDelay driver.
 ;
 DumpPercentage=50
+
+; DelayChangePercent=<percent>
+;
+; The maximum timeshift to apply when ramping the delay up or down, in
+; percent (1 - 5). Used only by the AsiHpi driver.
+;
+DelayChangePercent=5
 
 ; DefaultMaxDelay=10000
 ;
@@ -109,6 +145,30 @@ SuppressBypassMode=Yes|No
 ; (used only by the JackDelay driver)
 ;
 ActiveOnStart=No
+
+;
+; The index number of the audio adapter to use (integer, value 1 - 20)
+; (used only by the ASIDelay driver)
+;
+AdapterIndex=1
+
+;
+; The input port number on the audio adapter to use (integer, value 0 - 32)
+; (used only by the ASIDelay driver)
+;
+InputIndex=0
+
+;
+; The signal type to be used for the input
+; (used only by the ASIDelay driver)
+;
+InputSource=LINEIN
+
+;
+; The output port number on the audio adapter to use (integer, value 0 - 32)
+; (used only by the ASIDelay driver)
+;
+OutputIndex=0
 
 ;
 ; RML Command Interface

@@ -31,10 +31,12 @@ lib_LTLIBRARIES = libcunc.la
 dist_libcunc_la_SOURCES = cmdswitch.cpp cmdswitch.h\
                           profile.cpp profile.h\
                           pushbutton.cpp pushbutton.h\
+                          terminator.cpp terminator.h\
                           ttydevice.cpp ttydevice.h\
                           cunc.h
 
 nodist_libcunc_la_SOURCES = moc_pushbutton.cpp\
+                            moc_terminator.cpp\
                             moc_ttydevice.cpp
 
 libcunc_la_LDFLAGS = -release $(VERSION)

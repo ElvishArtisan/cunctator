@@ -1,6 +1,6 @@
 ## Makefile.am
 ##
-## cuncd/ Makefile.am for Cunctator
+## cuncd/Makefile.am for Cunctator
 ##
 ## (C) Copyright 2011-2025 Fred Gleason <fredg@paravelsystems.com>
 ##
@@ -29,6 +29,7 @@ moc_%.cpp:	%.h
 
 sbin_PROGRAMS = cuncd
 dist_cuncd_SOURCES = airtools.cpp airtools.h\
+                     asihpidelay.cpp asihpidelay.h\
                      bd600.cpp bd600.h\
                      connection.cpp connection.h\
                      cuncd.cpp cuncd.h\
@@ -42,6 +43,7 @@ dist_cuncd_SOURCES = airtools.cpp airtools.h\
                      globals.h
 
 nodist_cuncd_SOURCES = moc_airtools.cpp\
+                       moc_asihpidelay.cpp\
                        moc_bd600.cpp\
                        moc_connection.cpp\
                        moc_cuncd.cpp\
@@ -52,7 +54,7 @@ nodist_cuncd_SOURCES = moc_airtools.cpp\
                        moc_rmlengine.cpp\
                        moc_udpqueue.cpp
 
-cuncd_LDADD = @JACK_LIBS@ @CUNC_LIBS@ @QT6_LIBS@
+cuncd_LDADD = @HPI_LIBS@ @JACK_LIBS@ @CUNC_LIBS@ @QT6_LIBS@
 
 EXTRA_DIST = cuncd.pro
 
