@@ -41,6 +41,7 @@ AsihpiDelay::AsihpiDelay(Profile *p,int id,bool debug,QObject *parent)
   d_terminating=false;
   //  d_to_state=Cunctator::StateBypassed;
   //  d_delay_dump=false;
+  d_tempo_ratio=1.0;
 
   //
   // Scan Timer
@@ -74,10 +75,25 @@ AsihpiDelay::AsihpiDelay(Profile *p,int id,bool debug,QObject *parent)
     p->intValue(section,"DefaultMaxDelay",ASIHPIDELAY_DEFAULT_MAX_DELAY);
   d_dump_percentage=
     p->intValue(section,"DumpPercentage",ASIHPIDELAY_DEFAULT_DUMP_PERCENTAGE);
-  d_change_down=1.0-(float)(p->intValue(section,"DelayChangePercent",
-			  ASIHPIDELAY_DEFAULT_DELAY_CHANGE_PERCENT))/100.0;
-  d_change_up=1.0-(float)(p->intValue(section,"DelayChangePercent",
-			  ASIHPIDELAY_DEFAULT_DELAY_CHANGE_PERCENT))/100.0;
+  d_xfer_bytes=d_samplerate*d_audio_channels*
+    sizeof(float)*ASIHPIDELAY_POLLING_INTERVAL/1000;
+  d_xfer_frames=d_samplerate*ASIHPIDELAY_POLLING_INTERVAL/1000;
+  float ratio=
+    (float)(p->intValue(section,"DelayChangePercent",
+			ASIHPIDELAY_DEFAULT_DELAY_CHANGE_PERCENT))/100.0;
+  float ratio_up=1.0-ratio;
+  float ratio_down=1.0/ratio_up;
+
+  d_xfer_bytes_up=(((unsigned)(d_xfer_bytes*(ratio_up))/8)*8);
+  d_xfer_frames_up=d_xfer_frames*(ratio_up);
+
+  d_xfer_bytes_down=(((unsigned)(d_xfer_bytes*(ratio_down))/8)*8);
+  d_xfer_frames_down=d_xfer_frames*(ratio_down);
+
+  d_timescale_up=HPI_OSTREAM_TIMESCALE_UNITS*(ratio_down);
+  d_timescale_down=HPI_OSTREAM_TIMESCALE_UNITS*(ratio_up);
+
+  d_ring=new Ringbuffer(16777216,d_audio_channels);
 }
 
 
@@ -125,6 +141,8 @@ AsihpiDelay::~AsihpiDelay()
     syslog(LOG_ERR,"Delay%d:failed to close mixer [%s]",
 	   1+id(),HpiErrorText(hpi_err).toUtf8().constData());
   }
+
+  delete d_ring;
 }
 
 
@@ -254,12 +272,15 @@ bool AsihpiDelay::connect()
   //
   // Initialize Output
   //
-  //  memset(pcm,0,38640);
   for(int i=0;i<hpi_out_streams;i++) {
-    // printf("trying %d...",i);
     fflush(stdout);
     if((hpi_err=HPI_OutStreamOpen(NULL,d_adapter_index,i,&d_output_stream))==0) {
-      // printf("success\n");
+      if((hpi_err=HPI_OutStreamSetTimeScale(NULL,d_output_stream,
+					    HPI_OSTREAM_TIMESCALE_PASSTHROUGH))!=0) {
+	syslog(LOG_ERR,"Delay%d: failed to initialize adapter timescaling [%s]",
+	       1+id(),HpiErrorText(hpi_err).toUtf8().constData());
+	return false;
+      }
       for(uint16_t j=0;j<HPI_MAX_STREAMS;j++) {
 	if((hpi_err=HPI_MixerGetControl(NULL,d_hpi_mixer,
 					HPI_SOURCENODE_OSTREAM,i,
@@ -277,9 +298,6 @@ bool AsihpiDelay::connect()
 	}
       }
       break;
-    }
-    else {
-      // printf("failed [%s]\n",__AsihpiDelay_HpiErrorText(hpi_err));
     }
   }
   if(d_output_stream==0) {
@@ -301,7 +319,8 @@ bool AsihpiDelay::connect()
 	     1+id(),d_adapter_output_port);
     }
   }
-  syslog(LOG_DEBUG,"allocated %u bytes for output stream buffer",hpi_bufsize);
+  syslog(LOG_DEBUG,"Delay%d: allocated %u bytes for output stream buffer",
+	 1+id(),hpi_bufsize);
 
   if((hpi_err=HPI_InStreamStart(NULL,d_input_stream))!=0) {
     syslog(LOG_ERR,"Delay%d: unable to start stream for input port %d [%s]",
@@ -311,6 +330,8 @@ bool AsihpiDelay::connect()
   }
 
   d_scan_timer->start(ASIHPIDELAY_POLLING_INTERVAL);
+
+  emit delayStateChanged(id(),d_state,0);
 
   return true;
 }
@@ -326,7 +347,8 @@ void AsihpiDelay::enter()
   d_target_frames=d_max_delay*d_samplerate/1000;
   if((d_state!=Cunctator::StateEntering)&&
      (d_state!=Cunctator::StateEntered)) {
-    d_enter=true;
+    d_state=Cunctator::StateEntering;
+    emit delayStateChanged(id(),d_state,1000*d_ring->readSpace()/d_samplerate);
   }
 }
 
@@ -336,7 +358,8 @@ void AsihpiDelay::exit()
   d_target_frames=0;
   if((d_state!=Cunctator::StateExiting)&&
      (d_state!=Cunctator::StateExited)) {
-    d_exit=true;
+    d_state=Cunctator::StateExiting;
+    emit delayStateChanged(id(),d_state,1000*d_ring->readSpace()/d_samplerate);
   }
 }
 
@@ -351,13 +374,7 @@ void AsihpiDelay::dump()
 void AsihpiDelay::scanTimerData()
 {
   uint16_t hpi_err;
-  //  printf("samprate: %u  chans: %u  sizeof: %lu  interval: %u\n",
-  //	 d_samplerate,d_audio_channels,sizeof(float),
-  //	 ASIHPIDELAY_POLLING_INTERVAL);
-  uint32_t xfer_size=
-    d_samplerate*d_audio_channels*
-    sizeof(float)*ASIHPIDELAY_POLLING_INTERVAL/1000;
-  uint8_t pcm[xfer_size];
+  uint8_t pcm[d_xfer_bytes_down];  // THIS IS A HACK!!
   uint16_t in_state;
   uint32_t in_buffer_size;
   uint32_t in_data_recorded;
@@ -368,8 +385,7 @@ void AsihpiDelay::scanTimerData()
   uint32_t out_data_to_play;
   uint32_t out_samples_played;
   uint32_t out_aux_data_to_play;
-
-  //  printf("xfer_size: %u\n",xfer_size);
+  /*
   if(d_active_on_start) {
     enter();
     d_active_on_start=false;
@@ -379,7 +395,7 @@ void AsihpiDelay::scanTimerData()
     d_delay_length=d_from_delay_length;
     emit delayStateChanged(id(),d_state,d_delay_length);
   }
-
+  */
   if((hpi_err=HPI_InStreamGetInfoEx(NULL,d_input_stream,&in_state,
 				    &in_buffer_size,&in_data_recorded,
 				    &in_samples_recorded,
@@ -390,30 +406,83 @@ void AsihpiDelay::scanTimerData()
 	   HpiErrorText(hpi_err).toUtf8().constData());
     return;
   }
-  //  printf("IN STATE: %s  size: %u\n",
-  //	 HpiStateText(in_state).toUtf8().constData(),
-  //	 in_data_recorded);
-
-  while(in_data_recorded>=xfer_size) {
-    if((hpi_err=HPI_InStreamReadBuf(NULL,d_input_stream,pcm,xfer_size))!=0) {
+  while(in_data_recorded>=d_xfer_bytes) {
+    //
+    // Read from input
+    //
+    if((hpi_err=HPI_InStreamReadBuf(NULL,d_input_stream,pcm,d_xfer_bytes))!=0) {
       syslog(LOG_WARNING,
 	     "Delay%d: failed to read %lu frames from input %d [%s]",
-	     1+id(),xfer_size/(d_audio_channels*sizeof(float)),
+	     1+id(),d_xfer_bytes/(d_audio_channels*sizeof(float)),
 	     d_adapter_output_port,
 	     HpiErrorText(hpi_err).toUtf8().constData());
       break;
     }
-    //    printf("READING...\n");
-    if((hpi_err=HPI_OutStreamWriteBuf(NULL,d_output_stream,pcm,xfer_size,
+    d_ring->write((float *)pcm,d_xfer_frames);
+    in_data_recorded-=d_xfer_bytes;
+
+    //
+    // Select output parameters
+    //
+    uint32_t xfer_bytes=d_xfer_bytes;
+    uint32_t xfer_frames=d_xfer_frames;
+    uint32_t timescale=HPI_OSTREAM_TIMESCALE_PASSTHROUGH;
+    switch(d_state) {
+    case Cunctator::StateEntering:
+      if(d_ring->readSpace()<d_target_frames) {
+	xfer_bytes=d_xfer_bytes_up;
+	xfer_frames=d_xfer_frames_up;
+	timescale=d_timescale_up;
+      }
+      else {
+	d_state=Cunctator::StateEntered;
+	emit delayStateChanged(id(),d_state,
+			       1000*d_ring->readSpace()/d_samplerate);
+      }
+      break;
+
+    case Cunctator::StateEntered:
+      break;
+
+    case Cunctator::StateExiting:
+      if(d_ring->readSpace()>d_xfer_frames_down) {
+	xfer_bytes=d_xfer_bytes_down;
+	xfer_frames=d_xfer_frames_down;
+	timescale=d_timescale_down;
+      }
+      else {
+	d_state=Cunctator::StateExited;
+	emit delayStateChanged(id(),d_state,
+			       1000*d_ring->readSpace()/d_samplerate);
+      }
+      break;
+
+    case Cunctator::StateExited:
+      break;
+
+    case Cunctator::StateBypassed:
+      break;
+
+    case Cunctator::StateUnknown:
+      break;
+    }
+
+    //
+    // Write to output
+    //
+    if((hpi_err=HPI_OutStreamSetTimeScale(NULL,d_output_stream,timescale))!=0) {
+      syslog(LOG_ERR,"Delay%d: failed to set adapter timescaling [%s]",
+	     1+id(),HpiErrorText(hpi_err).toUtf8().constData());
+    }
+    d_ring->read((float *)pcm,xfer_frames);
+    if((hpi_err=HPI_OutStreamWriteBuf(NULL,d_output_stream,pcm,xfer_bytes,
 				      &d_hpi_format))!=0) {
       syslog(LOG_WARNING,
 	     "Delay%d: failed to write %lu frames to output %d [%s]",
-	     1+id(),xfer_size/(d_audio_channels*sizeof(float)),
+	     1+id(),xfer_bytes/(d_audio_channels*sizeof(float)),
 	     d_adapter_output_port,
 	     HpiErrorText(hpi_err).toUtf8().constData());
     }
-    in_data_recorded-=xfer_size;
-    //    printf("WRITING...\n");
   }
   if((hpi_err=HPI_OutStreamGetInfoEx(NULL,d_output_stream,&out_state,
 				    &out_buffer_size,&out_data_to_play,
@@ -425,63 +494,12 @@ void AsihpiDelay::scanTimerData()
 	   HpiErrorText(hpi_err).toUtf8().constData());
     return;
   }
-//  printf("OUT STATE: %s\n",HpiStateText(out_state).toUtf8().constData());
-
   if(out_state!=HPI_STATE_PLAYING) {
     if((hpi_err=HPI_OutStreamStart(NULL,d_output_stream))!=0) {
     syslog(LOG_ERR,"Delay%d: failed to start stream for output port %d [%s]",
 	   1+id(),d_adapter_output_port,
 	   HpiErrorText(hpi_err).toUtf8().constData());
     }
-    //    printf("STARTING...\n");
-  }
-}
-
-
-void AsihpiDelay::FreeResources()
-{
-  printf("FreeResources()\n");
-  uint16_t hpi_err;
-
-  //
-  // Shutdown HPI
-  //
-  if((hpi_err=HPI_OutStreamStop(NULL,d_output_stream))!=0) {
-    syslog(LOG_ERR,"Delay%d: failed to stop stream for output port %d [%s]",
-	   1+id(),d_adapter_output_port,
-	   HpiErrorText(hpi_err).toUtf8().constData());
-  }
-  if((hpi_err=HPI_OutStreamHostBufferFree(NULL,d_output_stream))!=0) {
-    syslog(LOG_ERR,
-	   "Delay%d: failed to free host buffer for output port %d [%s]",
-	   1+id(),d_adapter_output_port,
-	   HpiErrorText(hpi_err).toUtf8().constData());
-  }
-  if((hpi_err=HPI_OutStreamClose(NULL,d_output_stream))!=0) {
-    syslog(LOG_ERR,
-	   "Delay%d: failed to close stream status for output port %d [%s]",
-	   1+id(),d_adapter_output_port,
-	   HpiErrorText(hpi_err).toUtf8().constData());
-  }
-  if((hpi_err=HPI_InStreamStop(NULL,d_input_stream))!=0) {
-    syslog(LOG_ERR,"Delay%d: failed to stop stream for input port %d [%s]",
-	   1+id(),d_adapter_input_port,
-	   HpiErrorText(hpi_err).toUtf8().constData());
-  }
-  if((hpi_err=HPI_InStreamHostBufferFree(NULL,d_input_stream))!=0) {
-    syslog(LOG_ERR,
-	   "Delay%d: failed to free host buffer for input port %d [%s]",
-	   1+id(),d_adapter_input_port,
-	   HpiErrorText(hpi_err).toUtf8().constData());
-  }
-  if((hpi_err=HPI_InStreamClose(NULL,d_input_stream))!=0) {
-    syslog(LOG_ERR,"Delay%d: failed to close stream for input port %d [%s]",
-	   1+id(),d_adapter_input_port,
-	   HpiErrorText(hpi_err).toUtf8().constData());
-  }
-  if((hpi_err=HPI_MixerClose(NULL,d_hpi_mixer))!=0) {
-    syslog(LOG_ERR,"Delay%d: failed to close mixer [%s]",
-	   1+id(),HpiErrorText(hpi_err).toUtf8().constData());
   }
 }
 

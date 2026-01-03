@@ -177,3 +177,6 @@
 2026-01-02 Fred Gleason <fredg@paravelsystems.com>
 	* Stubbed out an Audioscience HPI delay driver for cuncd(8).
 	* Added a 'Terminator' class from Exemplar.
+2026-01-03 Fred Gleason <fredg@paravelsystems.com>
+	* Got 'Entering' and 'Exiting' delay states working in the
+	Audioscience HPI delay driver.

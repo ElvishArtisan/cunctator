@@ -64,7 +64,6 @@ class AsihpiDelay : public Delay
   void scanTimerData();
 
  private:
-  void FreeResources();
   QString HpiErrorText(uint16_t hpi_err) const;
   QString HpiStateText(uint16_t state) const;
   unsigned d_adapter_index;
@@ -80,11 +79,18 @@ class AsihpiDelay : public Delay
   unsigned d_max_delay;
   unsigned d_dump_percentage;
   unsigned d_dump_frames;
-  float d_change_down;
-  float d_change_up;
+  uint32_t d_xfer_bytes;
+  uint32_t d_xfer_bytes_up;
+  uint32_t d_xfer_bytes_down;
+  uint32_t d_xfer_frames;
+  uint32_t d_xfer_frames_up;
+  uint32_t d_xfer_frames_down;
+  uint32_t d_timescale_down;
+  uint32_t d_timescale_up;
   unsigned d_target_frames;
+  float d_tempo_ratio;
   //  soundtouch::SoundTouch *d_touch;
-  //  Ringbuffer *d_ring;
+  Ringbuffer *d_ring;
   pthread_t d_audio_thread;
   //   QList<jack_port_t *> jd_input_ports;
   //   QList<jack_port_t *> jd_output_ports;
