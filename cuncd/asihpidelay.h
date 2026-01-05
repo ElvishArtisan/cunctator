@@ -21,8 +21,9 @@
 #ifndef ASIHPIDELAY_H
 #define ASIHPIDELAY_H
 
+#ifdef HAVE_HPI
 #include <asihpi/hpi.h>
-#include <soundtouch/SoundTouch.h>
+#endif  // HAVE_HPI
 
 #include <QList>
 #include <QStringList>
@@ -68,9 +69,7 @@ class AsihpiDelay : public Delay
   QString HpiStateText(uint16_t state) const;
   unsigned d_adapter_index;
   unsigned d_adapter_input_port;
-  hpi_handle_t d_input_stream;
   unsigned d_adapter_output_port;
-  hpi_handle_t d_output_stream;
   unsigned d_samplerate;
   unsigned d_buffersize;
   Cunctator::DelayState d_state;
@@ -89,21 +88,20 @@ class AsihpiDelay : public Delay
   uint32_t d_timescale_up;
   unsigned d_target_frames;
   float d_tempo_ratio;
-  //  soundtouch::SoundTouch *d_touch;
   Ringbuffer *d_ring;
   pthread_t d_audio_thread;
-  //   QList<jack_port_t *> jd_input_ports;
-  //   QList<jack_port_t *> jd_output_ports;
-  //   QList<QString> jd_input_names;
-  //   QStringList jd_output_names;
-  //   jack_default_audio_sample_t *jd_buffer;
   QTimer *d_scan_timer;
 
   // HPI Stuff
+#ifdef HAVE_HPI
   struct hpi_format d_hpi_format;
   short d_hpi_gain_on[HPI_MAX_CHANNELS];
   short d_hpi_gain_off[HPI_MAX_CHANNELS];
   hpi_handle_t d_hpi_mixer;
+  hpi_handle_t d_input_stream;
+  hpi_handle_t d_output_stream;
+#endif  // HAVE_HPI
+  
   // Communications Flags
   bool d_enter;
   bool d_exit;

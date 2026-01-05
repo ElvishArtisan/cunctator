@@ -28,6 +28,7 @@
 AsihpiDelay::AsihpiDelay(Profile *p,int id,bool debug,QObject *parent)
   : Delay(p,id,debug,parent)
 {
+#ifdef HAVE_HPI
   d_state=Cunctator::StateExited;
   d_from_state=Cunctator::StateExited;
   d_target_frames=0;
@@ -94,11 +95,13 @@ AsihpiDelay::AsihpiDelay(Profile *p,int id,bool debug,QObject *parent)
   d_ring=new Ringbuffer(16777216,d_audio_channels);
 
   d_dump_frames=d_max_delay*d_dump_percentage/100*d_samplerate/1000;
+#endif  // HAVE_HPI
 }
 
 
 AsihpiDelay::~AsihpiDelay()
 {
+#ifdef HAVE_HPI
   uint16_t hpi_err;
 
   //
@@ -143,6 +146,7 @@ AsihpiDelay::~AsihpiDelay()
   }
 
   delete d_ring;
+#endif  // HAVE_HPI
 }
 
 
@@ -154,7 +158,7 @@ Cunctator::DelayType AsihpiDelay::type()
 
 QString AsihpiDelay::description()
 {
-  return QString("ASIHPI Delay");
+  return QString("Audioscience HPI Delay");
 }
 
 
@@ -172,6 +176,7 @@ int AsihpiDelay::delayLength()
 
 bool AsihpiDelay::connect()
 {
+#ifdef HAVE_HPI
   uint16_t hpi_out_streams;
   uint16_t hpi_in_streams;
   hpi_handle_t hpi_control;
@@ -338,6 +343,9 @@ bool AsihpiDelay::connect()
   emit delayStateChanged(id(),d_state,0);
 
   return true;
+#else
+  return false;
+#endif  // HAVE_HPI
 }
 
 
@@ -348,28 +356,33 @@ void AsihpiDelay::bypass()
 
 void AsihpiDelay::enter()
 {
+#ifdef HAVE_HPI
   d_target_frames=d_max_delay*d_samplerate/1000;
   if((d_state!=Cunctator::StateEntering)&&
      (d_state!=Cunctator::StateEntered)) {
     d_state=Cunctator::StateEntering;
     emit delayStateChanged(id(),d_state,delayLength());
   }
+#endif  // HAVE_HPI
 }
 
 
 void AsihpiDelay::exit()
 {
+#ifdef HAVE_HPI
   d_target_frames=0;
   if((d_state!=Cunctator::StateExiting)&&
      (d_state!=Cunctator::StateExited)) {
     d_state=Cunctator::StateExiting;
     emit delayStateChanged(id(),d_state,delayLength());
   }
+#endif  // HAVE_HPI
 }
 
 
 void AsihpiDelay::dump()
 {
+#ifdef HAVE_HPI
   d_ring->dump(d_dump_frames);
   switch(d_state) {
     case Cunctator::StateEntering:
@@ -385,11 +398,13 @@ void AsihpiDelay::dump()
   }
   emit dumped(id());
   emit delayStateChanged(id(),d_state,delayLength());
+#endif  // HAVE_HPI
 }
 
 
 void AsihpiDelay::scanTimerData()
 {
+#ifdef HAVE_HPI
   uint16_t hpi_err;
   uint8_t pcm[d_xfer_bytes_down];  // THIS IS A HACK!!
   uint16_t in_state;
@@ -511,16 +526,21 @@ void AsihpiDelay::scanTimerData()
   if((current_delay_frames!=d_ring->readSpace())||emit_update) {
     emit delayStateChanged(id(),d_state,delayLength());
   }
+#endif  // HAVE_HPI
 }
 
 
 QString AsihpiDelay::HpiErrorText(uint16_t hpi_err) const
 {
+#ifdef HAVE_HPI
   char err_txt[200];
 
   HPI_GetErrorText(hpi_err,err_txt);
 
   return QString::fromUtf8(err_txt);
+#else
+  return QString::fromUtf8("Unknown");
+#endif  // HAVE_HPI
 }
 
 
@@ -528,6 +548,7 @@ QString AsihpiDelay::HpiStateText(uint16_t state) const
 {
   QString ret=QObject::tr("Unknown")+QString::asprintf(" [%u]",state);;
 
+#ifdef HAVE_HPI
   switch(state) {
   case HPI_STATE_STOPPED:
     ret=QObject::tr("STOPPED");
@@ -553,5 +574,6 @@ QString AsihpiDelay::HpiStateText(uint16_t state) const
     ret=QObject::tr("WAIT");
     break;
   }
+#endif  // HAVE_HPI
   return ret;
 }

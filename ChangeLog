@@ -194,3 +194,6 @@
 	* Fixed a bug in the Audioscience HPI delay driver that caused the
 	return length value from the 'Get Delay State' ['DS'] protocol
 	command to be incorrect.
+2026-01-05 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed bugs that broke the build when compiling without AudioScience
+	HPI support present.

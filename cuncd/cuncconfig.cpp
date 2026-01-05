@@ -174,8 +174,14 @@ bool CuncConfig::load()
       added=true;
     }
     if(str.toLower()=="asihpidelay") {
+#ifdef HAVE_HPI
       conf_delays.push_back(new AsihpiDelay(p,count-1,conf_debug,this));
       added=true;
+#else
+      syslog(LOG_ERR,"Delay%d: unsupported delay type \"%s\"",
+	     count,str.toUtf8().constData());
+      return false;
+#endif  // HAVE_HPI
     }
     if(added) {
       connect(conf_delays.back(),

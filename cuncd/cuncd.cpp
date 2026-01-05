@@ -77,7 +77,9 @@ MainObject::MainObject(QObject *parent)
   // Load Local Configs
   //
   cuncd_config=new CuncConfig(CUNC_CONF_FILE,debug);
-  cuncd_config->load();
+  if(!cuncd_config->load()) {
+    ::exit(1);
+  }
   cuncd_config->dumpConfig(stdout);
 
   //
