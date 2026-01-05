@@ -94,6 +94,8 @@ AsihpiDelay::AsihpiDelay(Profile *p,int id,bool debug,QObject *parent)
   d_timescale_down=HPI_OSTREAM_TIMESCALE_UNITS*(ratio_up);
 
   d_ring=new Ringbuffer(16777216,d_audio_channels);
+
+  d_dump_frames=d_max_delay*d_dump_percentage/100*d_samplerate/1000;
 }
 
 
@@ -331,6 +333,10 @@ bool AsihpiDelay::connect()
 
   d_scan_timer->start(ASIHPIDELAY_POLLING_INTERVAL);
 
+  if(d_active_on_start) {
+    enter();
+  }
+
   emit delayStateChanged(id(),d_state,0);
 
   return true;
@@ -366,7 +372,9 @@ void AsihpiDelay::exit()
 
 void AsihpiDelay::dump()
 {
-  d_dump=true;
+  if(d_ring->dump(d_dump_frames)>0) {
+    enter();
+  }
   emit dumped(id());
 }
 
@@ -385,17 +393,9 @@ void AsihpiDelay::scanTimerData()
   uint32_t out_data_to_play;
   uint32_t out_samples_played;
   uint32_t out_aux_data_to_play;
-  /*
-  if(d_active_on_start) {
-    enter();
-    d_active_on_start=false;
-  }
-  if((d_from_state!=d_state)||(d_from_delay_length!=d_delay_length)) {
-    d_state=d_from_state;
-    d_delay_length=d_from_delay_length;
-    emit delayStateChanged(id(),d_state,d_delay_length);
-  }
-  */
+  bool emit_update=false;
+  unsigned current_delay_frames=d_ring->readSpace();
+
   if((hpi_err=HPI_InStreamGetInfoEx(NULL,d_input_stream,&in_state,
 				    &in_buffer_size,&in_data_recorded,
 				    &in_samples_recorded,
@@ -436,8 +436,7 @@ void AsihpiDelay::scanTimerData()
       }
       else {
 	d_state=Cunctator::StateEntered;
-	emit delayStateChanged(id(),d_state,
-			       1000*d_ring->readSpace()/d_samplerate);
+	emit_update=true;
       }
       break;
 
@@ -452,8 +451,7 @@ void AsihpiDelay::scanTimerData()
       }
       else {
 	d_state=Cunctator::StateExited;
-	emit delayStateChanged(id(),d_state,
-			       1000*d_ring->readSpace()/d_samplerate);
+	emit_update=true;
       }
       break;
 
@@ -500,6 +498,10 @@ void AsihpiDelay::scanTimerData()
 	   1+id(),d_adapter_output_port,
 	   HpiErrorText(hpi_err).toUtf8().constData());
     }
+  }
+  if((current_delay_frames!=d_ring->readSpace())||emit_update) {
+    emit delayStateChanged(id(),d_state,
+			   1000*d_ring->readSpace()/d_samplerate);
   }
 }
 

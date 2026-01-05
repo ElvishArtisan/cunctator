@@ -180,3 +180,6 @@
 2026-01-03 Fred Gleason <fredg@paravelsystems.com>
 	* Got 'Entering' and 'Exiting' delay states working in the
 	Audioscience HPI delay driver.
+2026-01-04 Fred Gleason <fredg@paravelsystems.com>
+	* Implemented the 'Dump Delay' command in the Audioscience HPI delay
+	driver.
