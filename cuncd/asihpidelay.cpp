@@ -23,8 +23,6 @@
 #include <syslog.h>
 #include <unistd.h>
 
-//#include "hpisoundcard.h"
-
 #include "asihpidelay.h"
 
 AsihpiDelay::AsihpiDelay(Profile *p,int id,bool debug,QObject *parent)
@@ -168,7 +166,7 @@ Cunctator::DelayState AsihpiDelay::state()
 
 int AsihpiDelay::delayLength()
 {
-  return d_delay_length;
+  return 1000*d_ring->readSpace()/d_samplerate;
 }
 
 
@@ -354,7 +352,7 @@ void AsihpiDelay::enter()
   if((d_state!=Cunctator::StateEntering)&&
      (d_state!=Cunctator::StateEntered)) {
     d_state=Cunctator::StateEntering;
-    emit delayStateChanged(id(),d_state,1000*d_ring->readSpace()/d_samplerate);
+    emit delayStateChanged(id(),d_state,delayLength());
   }
 }
 
@@ -365,7 +363,7 @@ void AsihpiDelay::exit()
   if((d_state!=Cunctator::StateExiting)&&
      (d_state!=Cunctator::StateExited)) {
     d_state=Cunctator::StateExiting;
-    emit delayStateChanged(id(),d_state,1000*d_ring->readSpace()/d_samplerate);
+    emit delayStateChanged(id(),d_state,delayLength());
   }
 }
 
@@ -386,8 +384,7 @@ void AsihpiDelay::dump()
       break;
   }
   emit dumped(id());
-  emit delayStateChanged(id(),d_state,
-			 1000*d_ring->readSpace()/d_samplerate);
+  emit delayStateChanged(id(),d_state,delayLength());
 }
 
 
@@ -512,14 +509,7 @@ void AsihpiDelay::scanTimerData()
     }
   }
   if((current_delay_frames!=d_ring->readSpace())||emit_update) {
-    emit delayStateChanged(id(),d_state,
-			   1000*d_ring->readSpace()/d_samplerate);
-  }
-  else {
-    if(emit_update) {
-      emit delayStateChanged(id(),d_state,
-			     1000*d_ring->readSpace()/d_samplerate);
-    }
+    emit delayStateChanged(id(),d_state,delayLength());
   }
 }
 

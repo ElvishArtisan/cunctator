@@ -190,3 +190,7 @@
 	* Fixed a regression in the Audioscience HPI delay driver that caused
 	delay length updates to fail to be emitted after a Dump when in
 	the Entered state.
+2026-01-05 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed a bug in the Audioscience HPI delay driver that caused the
+	return length value from the 'Get Delay State' ['DS'] protocol
+	command to be incorrect.
