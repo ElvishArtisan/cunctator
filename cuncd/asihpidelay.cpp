@@ -373,7 +373,21 @@ void AsihpiDelay::exit()
 void AsihpiDelay::dump()
 {
   d_ring->dump(d_dump_frames);
+  switch(d_state) {
+    case Cunctator::StateEntering:
+    case Cunctator::StateEntered:
+      d_state=Cunctator::StateEntering;
+      break;
+
+    case Cunctator::StateExiting:
+    case Cunctator::StateExited:
+    case Cunctator::StateBypassed:
+    case Cunctator::StateUnknown:
+      break;
+  }
   emit dumped(id());
+  emit delayStateChanged(id(),d_state,
+			 1000*d_ring->readSpace()/d_samplerate);
 }
 
 
@@ -500,6 +514,12 @@ void AsihpiDelay::scanTimerData()
   if((current_delay_frames!=d_ring->readSpace())||emit_update) {
     emit delayStateChanged(id(),d_state,
 			   1000*d_ring->readSpace()/d_samplerate);
+  }
+  else {
+    if(emit_update) {
+      emit delayStateChanged(id(),d_state,
+			     1000*d_ring->readSpace()/d_samplerate);
+    }
   }
 }
 
