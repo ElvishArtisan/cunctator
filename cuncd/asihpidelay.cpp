@@ -372,9 +372,7 @@ void AsihpiDelay::exit()
 
 void AsihpiDelay::dump()
 {
-  if(d_ring->dump(d_dump_frames)>0) {
-    enter();
-  }
+  d_ring->dump(d_dump_frames);
   emit dumped(id());
 }
 

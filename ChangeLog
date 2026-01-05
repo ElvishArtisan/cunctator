@@ -183,3 +183,6 @@
 2026-01-04 Fred Gleason <fredg@paravelsystems.com>
 	* Implemented the 'Dump Delay' command in the Audioscience HPI delay
 	driver.
+2026-01-05 Fred Gleason <fredg@paravelsystems.com>
+	* Fixed a bug in the Audioscience HPI delay driver that caused the
+	delay state to be forced to Entering after executing a Dump.
