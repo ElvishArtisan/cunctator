@@ -13,6 +13,7 @@
 *.spec
 *.tar.gz
 *.tar.xz
+.~lock.protocol.odt#
 .deps
 .libs
 aclocal.m4
