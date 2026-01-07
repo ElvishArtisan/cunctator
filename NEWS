@@ -1,6 +1,12 @@
 The NEWS file for the Cunctator package.
 
 -------------------------------------------------------------------------------
+v3.0.0rc2 -- 7 January 2026
+
+Changes:
+    Added an 'AsiHpi' delay driver, allow use of an ASI6XXX series audio
+    adapter as a delay device.
+-------------------------------------------------------------------------------
 v3.0.0rc1 -- 9 August 2025
 
 Changes:
