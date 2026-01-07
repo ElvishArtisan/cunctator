@@ -197,3 +197,6 @@
 2026-01-05 Fred Gleason <fredg@paravelsystems.com>
 	* Fixed bugs that broke the build when compiling without AudioScience
 	HPI support present.
+2026-01-07 Fred Gleason <fredg@paravelsystems.com>
+	* Added code to the Audioscience HPI delay driver to log the
+	HPI output stream number used.

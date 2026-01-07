@@ -286,6 +286,7 @@ bool AsihpiDelay::connect()
 	       1+id(),HpiErrorText(hpi_err).toUtf8().constData());
 	return false;
       }
+      syslog(LOG_DEBUG,"Delay%d: using output stream #%d",id(),i);
       for(uint16_t j=0;j<HPI_MAX_STREAMS;j++) {
 	if((hpi_err=HPI_MixerGetControl(NULL,d_hpi_mixer,
 					HPI_SOURCENODE_OSTREAM,i,
